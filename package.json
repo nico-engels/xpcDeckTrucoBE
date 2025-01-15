@@ -1,0 +1,41 @@
+{
+  "name": "xpcdecktrucobe",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npx eslint .",
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts"
+  },
+  "keywords": [],
+  "author": "nengels",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/body-parser": "^1.19.5",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/sqlite3": "^3.1.11",
+    "eslint": "^9.18.0",
+    "nodemon": "^3.1.9",
+    "prettier": "3.4.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "http-status-codes": "^2.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.2.2",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.20"
+  }
+}
