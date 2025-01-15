@@ -4,8 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { createTurn, getAllInfoTurnsByRound } from '../entity/games-db';
 import { jwtRequest } from '../router/middlewares';
 
-export async function checkTurn(req: Request, res: Response)
-{
+export async function checkTurn(req: Request, res: Response) {
   try {
     const roundId = parseInt(req.params.roundId);
 
@@ -15,22 +14,21 @@ export async function checkTurn(req: Request, res: Response)
       return res.status(StatusCodes.NOT_FOUND).end();
     }
 
-    if (roundTurns.round.game.player1.id !== (req as jwtRequest).jwtToken.userId &&
-        roundTurns.round.game.player2.id !== (req as jwtRequest).jwtToken.userId) {
-      return res.status(StatusCodes.FORBIDDEN)
-                .json({ message: 'You do not participate in this game!' })
-                .end();
+    if (
+      roundTurns.round.game.player1.id !== (req as jwtRequest).jwtToken.userId &&
+      roundTurns.round.game.player2.id !== (req as jwtRequest).jwtToken.userId
+    ) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
     }
 
-    let turnFmtArr : 
-      { 
-        id: number,
-        seq: number,
-        playerId: number,
-        player: string,
-        cardOrAction: string,
-        when: Date
-      }[] = [];
+    let turnFmtArr: {
+      id: number;
+      seq: number;
+      playerId: number;
+      player: string;
+      cardOrAction: string;
+      when: Date;
+    }[] = [];
     for (const t of roundTurns.round.turns) {
       turnFmtArr.push({
         id: t.id,
@@ -38,9 +36,9 @@ export async function checkTurn(req: Request, res: Response)
         playerId: t.player.id,
         player: t.player.username,
         cardOrAction: t.cardOrAction,
-        when: t.when
+        when: t.when,
       });
-    }    
+    }
 
     let playerCards: string[];
     let playerCardsRemaining: string[];
@@ -52,31 +50,31 @@ export async function checkTurn(req: Request, res: Response)
       playerCardsRemaining = roundTurns.player2CardsRemaining;
     }
 
-    return res.status(StatusCodes.OK).json({
-      roundId: roundTurns.round.id,
-      gameId: roundTurns.round.game.id,
-      nextPlayerId: roundTurns.nextPlayerId,
-      trumpCard: roundTurns.round.trumpCard,
-      player1Id: roundTurns.round.game.player1.id,
-      player1: roundTurns.round.game.player1.username,
-      player2Id: roundTurns.round.game.player2.id,
-      player2: roundTurns.round.game.player2.username,
-      playerCards,
-      playerCardsRemaining,            
-      turns: turnFmtArr,      
-      TriTurnWinner: roundTurns.TriTurnWinner,
-      roundWinner: roundTurns.roundWinner,
-    }).end();    
-
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        roundId: roundTurns.round.id,
+        gameId: roundTurns.round.game.id,
+        nextPlayerId: roundTurns.nextPlayerId,
+        trumpCard: roundTurns.round.trumpCard,
+        player1Id: roundTurns.round.game.player1.id,
+        player1: roundTurns.round.game.player1.username,
+        player2Id: roundTurns.round.game.player2.id,
+        player2: roundTurns.round.game.player2.username,
+        playerCards,
+        playerCardsRemaining,
+        turns: turnFmtArr,
+        TriTurnWinner: roundTurns.TriTurnWinner,
+        roundWinner: roundTurns.roundWinner,
+      })
+      .end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
   }
-
 }
 
-export async function playTurn(req: Request, res: Response)
-{
+export async function playTurn(req: Request, res: Response) {
   try {
     const { roundId, prevSeq, cardOrAction } = req.body;
 
@@ -87,27 +85,19 @@ export async function playTurn(req: Request, res: Response)
     }
 
     if (roundTurns.roundWinner) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Round is over!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Round is over!' }).end();
     }
 
     if (roundTurns.nextPlayerId !== (req as jwtRequest).jwtToken.userId) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Not your turn!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Not your turn!' }).end();
     }
 
     if (roundTurns.round.turns.length == 0 && prevSeq !== 0) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Invalid sequence!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
     }
 
     if (roundTurns.round.turns.length && prevSeq !== roundTurns.round.turns.at(-1).seq) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Invalid sequence!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
     }
 
     let playerCards: Array<string>;
@@ -119,21 +109,15 @@ export async function playTurn(req: Request, res: Response)
       playerCards = roundTurns.player2CardsArr;
       playerCardsRemaining = roundTurns.player2CardsRemaining;
     } else {
-      return res.status(StatusCodes.FORBIDDEN)
-                .json({ message: 'You do not participate in this game!' })
-                .end();
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
     }
 
     if (!playerCards.includes(cardOrAction)) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Invalid card!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid card!' }).end();
     }
 
     if (!playerCardsRemaining.includes(cardOrAction)) {
-      return res.status(StatusCodes.CONFLICT)
-                .json({ message: 'Card already played!' })
-                .end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Card already played!' }).end();
     }
 
     const turn = await createTurn({
@@ -141,13 +125,15 @@ export async function playTurn(req: Request, res: Response)
       seq: prevSeq + 1,
       player: { id: (req as jwtRequest).jwtToken.userId },
       cardOrAction,
-      when: new Date()
+      when: new Date(),
     });
 
-    return res.status(StatusCodes.OK).json({
-      id: turn.id
-    }).end();
-
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        id: turn.id,
+      })
+      .end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);

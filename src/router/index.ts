@@ -7,8 +7,7 @@ import turn from './turn';
 
 const router = express.Router();
 
-export default function()
-{
+export default function () {
   authentication(router);
   game(router);
   round(router);

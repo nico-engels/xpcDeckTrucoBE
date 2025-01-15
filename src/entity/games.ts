@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,
-         ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import { users } from './users';
 
@@ -15,12 +14,12 @@ export class games {
   player2?: users;
 
   @Column({
-    type: "int"
+    type: 'int',
   })
   player1Score?: number;
 
   @Column({
-    type: "int"
+    type: 'int',
   })
   player2Score?: number;
 
@@ -32,7 +31,7 @@ export class games {
 
   @Column({
     nullable: true,
-    type: "date"
+    type: 'date',
   })
   endPlay?: Date;
 
@@ -49,25 +48,25 @@ export class rounds {
   game?: games;
 
   @Column({
-    type: "int"
+    type: 'int',
   })
   seq?: number;
 
-  @Column({ 
+  @Column({
     length: 6,
-    type: "varchar"
+    type: 'varchar',
   })
   player1Cards?: string;
 
-  @Column({ 
+  @Column({
     length: 6,
-    type: "varchar"
+    type: 'varchar',
   })
   player2Cards?: string;
 
-  @Column({ 
+  @Column({
     length: 2,
-    type: "varchar"
+    type: 'varchar',
   })
   trumpCard?: string;
 
@@ -75,8 +74,8 @@ export class rounds {
   starterPlayer?: users;
 
   @Column({
-    type: "boolean",
-    nullable: true
+    type: 'boolean',
+    nullable: true,
   })
   finished: boolean;
 
@@ -85,7 +84,7 @@ export class rounds {
 
   @Column({
     nullable: true,
-    type: "int"
+    type: 'int',
   })
   score?: number;
 
@@ -102,21 +101,21 @@ export class turns {
   round?: rounds;
 
   @Column({
-    type: "int"
+    type: 'int',
   })
   seq?: number;
 
   @ManyToOne(() => users, (user) => user.turns)
   player?: users;
 
-  @Column({ 
+  @Column({
     length: 2,
-    type: "varchar"
+    type: 'varchar',
   })
   cardOrAction?: string;
 
   @Column({
-    type: "date"
+    type: 'date',
   })
   when?: Date;
 }

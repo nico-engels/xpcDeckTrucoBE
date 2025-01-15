@@ -9,7 +9,7 @@ export class users {
 
   @Column({
     length: 35,
-    type: "varchar",
+    type: 'varchar',
     unique: true,
   })
   username?: string;
@@ -17,7 +17,7 @@ export class users {
   @Column({
     length: 150,
     nullable: true,
-    type: "varchar",
+    type: 'varchar',
     unique: true,
   })
   email?: string;
@@ -25,7 +25,7 @@ export class users {
   @Column({
     length: 35,
     nullable: true,
-    type: "varchar",
+    type: 'varchar',
     unique: true,
   })
   rpAddress?: string;
@@ -33,14 +33,14 @@ export class users {
   @Column({
     length: 200,
     nullable: true,
-    type: "varchar",
+    type: 'varchar',
   })
   passwd?: string;
 
   @Column({
     length: 180,
     nullable: true,
-    type: "varchar",
+    type: 'varchar',
   })
   salt?: string;
 

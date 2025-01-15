@@ -5,33 +5,28 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 export interface jwtUserIdPayload extends JwtPayload {
   username: string;
   userId: number;
-};
+}
 
 export interface jwtRequest extends Request {
   jwtToken: jwtUserIdPayload;
 }
 
-export async function validadeTok(req: Request, res: Response, next: NextFunction)
-{
+export async function validadeTok(req: Request, res: Response, next: NextFunction) {
   const token = req.header('Authorization')?.replace(/^Bearer /, '');
   if (!token) {
-    return res.status(StatusCodes.UNAUTHORIZED)
-              .json({ message: 'Access denied' })
-              .end();
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
   }
 
   try {
-    const decoded = (jwt.verify(token, process.env.TOK_SECRET) as jwtUserIdPayload);
+    const decoded = jwt.verify(token, process.env.TOK_SECRET) as jwtUserIdPayload;
     (req as jwtRequest).jwtToken = {
       username: decoded.username,
-      userId: decoded.userId
+      userId: decoded.userId,
     };
   } catch (error) {
     console.log(error);
-    return res.status(StatusCodes.UNAUTHORIZED)
-              .json({ message: 'Invalid token' })
-              .end();
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid token' }).end();
   }
 
-   return next();
+  return next();
 }
