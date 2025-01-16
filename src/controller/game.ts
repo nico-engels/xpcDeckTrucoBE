@@ -52,10 +52,36 @@ export async function listActiveGames(req: Request, res: Response) {
   try {
     const activeGames = await listGamesByUsername((req as jwtRequest).jwtToken.username, true);
 
+    const gameFmt: {
+      id: number;
+      player1Id: number;
+      player1: string;
+      player1Score: number;
+      player2Id: number;
+      player2: string;
+      player2Score: number;
+      startPlay: Date;
+      endPlay: Date;
+    }[] = [];
+
+    for (const gss of activeGames) {
+      gameFmt.push({
+        id: gss.id,
+        player1Id: gss.player1.id,
+        player1: gss.player1.username,
+        player1Score: gss.player1Score,
+        player2Id: gss.player2.id,
+        player2: gss.player2.username,
+        player2Score: gss.player2Score,
+        startPlay: gss.startPlay,
+        endPlay: gss.endPlay,
+      });
+    }
+
     return res
       .status(StatusCodes.OK)
       .json({
-        games: activeGames,
+        games: gameFmt,
         gamesCount: activeGames.length,
       })
       .end();

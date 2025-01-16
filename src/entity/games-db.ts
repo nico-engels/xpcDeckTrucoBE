@@ -16,6 +16,10 @@ export async function listGamesByUsername(username: string, active?: boolean) {
   if (active === undefined) {
     return await appDataSource.getRepository(games).find({
       where: [{ player1: { username } }, { player2: { username } }],
+      relations: {
+        player1: true,
+        player2: true,
+      },
     });
   } else {
     if (active) {
@@ -24,6 +28,10 @@ export async function listGamesByUsername(username: string, active?: boolean) {
           { player1: { username }, endPlay: IsNull() },
           { player2: { username }, endPlay: IsNull() },
         ],
+        relations: {
+          player1: true,
+          player2: true,
+        },
       });
     } else {
       return await appDataSource.getRepository(games).find({
@@ -31,6 +39,10 @@ export async function listGamesByUsername(username: string, active?: boolean) {
           { player1: { username }, endPlay: Not(IsNull()) },
           { player2: { username }, endPlay: Not(IsNull()) },
         ],
+        relations: {
+          player1: true,
+          player2: true,
+        },
       });
     }
   }
@@ -241,6 +253,31 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
         roundWinner = turnWin.player1;
       } else if (TriTurnWinner.filter((x) => x === turnWin.player2).length == 2) {
         roundWinner = turnWin.player2;
+      } else if (
+        TriTurnWinner[0] !== turnWin.draw &&
+        (TriTurnWinner[1] === turnWin.draw || (TriTurnWinner.length === 3 && TriTurnWinner[2] === turnWin.draw))
+      ) {
+        roundWinner = TriTurnWinner[0];
+      } else if (TriTurnWinner[0] === turnWin.draw && TriTurnWinner[1] !== turnWin.draw) {
+        roundWinner = TriTurnWinner[1];
+      } else if (
+        TriTurnWinner.length === 3 &&
+        TriTurnWinner[0] === turnWin.draw &&
+        TriTurnWinner[1] === turnWin.draw &&
+        TriTurnWinner[2] !== turnWin.draw
+      ) {
+        roundWinner = TriTurnWinner[2];
+      } else if (
+        TriTurnWinner.length === 3 &&
+        TriTurnWinner[0] === turnWin.draw &&
+        TriTurnWinner[1] === turnWin.draw &&
+        TriTurnWinner[2] === turnWin.draw
+      ) {
+        if (round.starterPlayer.id === round.game.player1.id) {
+          roundWinner = turnWin.player1;
+        } else {
+          roundWinner = turnWin.player2;
+        }
       }
     }
 

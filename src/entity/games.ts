@@ -77,7 +77,7 @@ export class rounds {
     type: 'boolean',
     nullable: true,
   })
-  finished: boolean;
+  finished?: boolean;
 
   @ManyToOne(() => users, (user) => user.roundsWinners)
   winnerPlayer?: users;
@@ -115,7 +115,7 @@ export class turns {
   cardOrAction?: string;
 
   @Column({
-    type: 'date',
+    type: 'datetime',
   })
   when?: Date;
 }

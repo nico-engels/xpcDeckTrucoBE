@@ -4,9 +4,10 @@
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint .",
+    "prettier": "npx prettier . --write",
+    "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts",
     "start": "nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "nengels",

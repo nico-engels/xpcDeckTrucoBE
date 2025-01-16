@@ -21,7 +21,7 @@ export async function checkTurn(req: Request, res: Response) {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
     }
 
-    let turnFmtArr: {
+    const turnFmtArr: {
       id: number;
       seq: number;
       playerId: number;
@@ -55,6 +55,7 @@ export async function checkTurn(req: Request, res: Response) {
       .json({
         roundId: roundTurns.round.id,
         gameId: roundTurns.round.game.id,
+        starterPlayer: roundTurns.round.starterPlayer.id,
         nextPlayerId: roundTurns.nextPlayerId,
         trumpCard: roundTurns.round.trumpCard,
         player1Id: roundTurns.round.game.player1.id,

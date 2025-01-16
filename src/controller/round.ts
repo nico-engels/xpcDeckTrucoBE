@@ -97,7 +97,15 @@ export async function finishRound(req: Request, res: Response) {
 
     let newRoundSeq: rounds;
     let playerCards: string;
-    let nextRound: any;
+    let nextRound:
+      | {
+          id: number;
+          seq: number;
+          playerCards: string;
+          trumpCard: string;
+          startPlayerId: number;
+        }
+      | undefined;
     if (roundTurns.round.game.player1Score !== 12 && roundTurns.round.game.player2Score !== 12) {
       newRoundSeq = await newRound(roundTurns.round.game, roundTurns.round.seq + 1, nextStartPlayerId);
 
@@ -164,7 +172,12 @@ export async function allRounds(req: Request, res: Response) {
       });
     }
 
-    return res.status(StatusCodes.OK).json({ rounds: roundsFmt }).end();
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        rounds: roundsFmt,
+      })
+      .end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR).end();
