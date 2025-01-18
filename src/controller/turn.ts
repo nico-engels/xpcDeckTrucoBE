@@ -10,15 +10,8 @@ export async function checkTurn(req: Request, res: Response) {
 
     const roundTurns = await getAllInfoTurnsByRound(roundId);
 
-    if (!roundTurns) {
+    if (!roundTurns || !roundTurns.round) {
       return res.status(StatusCodes.NOT_FOUND).end();
-    }
-
-    if (
-      roundTurns.round.game.player1.id !== (req as jwtRequest).jwtToken.userId &&
-      roundTurns.round.game.player2.id !== (req as jwtRequest).jwtToken.userId
-    ) {
-      return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
     }
 
     const turnFmtArr: {

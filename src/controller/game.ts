@@ -1,11 +1,46 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createGame, listGamesByUsername } from '../entity/games-db';
+import { createGame, getGameById, listGamesByUsername } from '../entity/games-db';
 import { jwtRequest } from '../router/middlewares';
 import { users } from '../entity/users';
 import { getUserByUsername } from '../entity/users-db';
 import { newRound } from './round';
+
+export async function infoGame(req: Request, res: Response) {
+  try {
+    if (!req.params.gameId || Number.isNaN(parseInt(req.params.gameId))) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Game!' }).end();
+    }
+
+    const game = await getGameById(parseInt(req.params.gameId));
+
+    if (!game) {
+      return res.status(StatusCodes.NOT_FOUND).end();
+    }
+
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        id: game.id,
+        player1Id: game.player1.id,
+        player1: game.player1.username,
+        player1Score: game.player1Score,
+        player2Id: game.player2.id,
+        player2: game.player2.username,
+        player2Score: game.player2Score,
+        startPlay: game.startPlay,
+        lastPlay: game.lastPlay,
+        lastRoundId: game.rounds[game.rounds.length - 1]?.id,
+        lastRoundSeq: game.rounds[game.rounds.length - 1]?.seq,
+        endPlay: game.endPlay,
+      })
+      .end();
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
 
 export async function newGame(req: Request, res: Response) {
   try {

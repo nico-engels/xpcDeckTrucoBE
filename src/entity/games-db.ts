@@ -12,6 +12,19 @@ export async function updateGame(game: games) {
   return await appDataSource.getRepository(games).save(game);
 }
 
+export async function getGameById(gameId: number) {
+  return await appDataSource.getRepository(games).findOne({
+    where: {
+      id: gameId,
+    },
+    relations: {
+      player1: true,
+      player2: true,
+      rounds: true,
+    },
+  });
+}
+
 export async function listGamesByUsername(username: string, active?: boolean) {
   if (active === undefined) {
     return await appDataSource.getRepository(games).find({

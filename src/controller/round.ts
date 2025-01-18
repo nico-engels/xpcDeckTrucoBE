@@ -138,11 +138,15 @@ export async function finishRound(req: Request, res: Response) {
 
 export async function allRounds(req: Request, res: Response) {
   try {
-    if (!req.params.gameId) {
+    if (!req.params.gameId || Number.isNaN(parseInt(req.params.gameId))) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Game!' }).end();
     }
 
     const allRounds = await getAllRoundsByGame(parseInt(req.params.gameId));
+
+    if (!allRounds) {
+      return res.status(StatusCodes.NOT_FOUND).end();
+    }
 
     const roundsFmt: {
       id: number;
@@ -186,7 +190,7 @@ export async function allRounds(req: Request, res: Response) {
 
 export async function lastRound(req: Request, res: Response) {
   try {
-    if (!req.params.gameId) {
+    if (!req.params.gameId || Number.isNaN(parseInt(req.params.gameId))) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Game!' }).end();
     }
 
