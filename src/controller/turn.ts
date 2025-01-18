@@ -76,7 +76,7 @@ export async function playTurn(req: Request, res: Response) {
 
     if (!roundTurns) {
       return res.status(StatusCodes.NOT_FOUND).end();
-    }    
+    }
 
     let playerCards: Array<string>;
     let playerCardsRemaining: Array<string>;
@@ -92,7 +92,7 @@ export async function playTurn(req: Request, res: Response) {
 
     if (roundTurns.roundWinner) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Round is over!' }).end();
-    }    
+    }
 
     if (roundTurns.round.turns.length == 0 && prevSeq !== 0) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
@@ -106,11 +106,13 @@ export async function playTurn(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Not your turn!' }).end();
     }
 
-    if (!playerCards.includes(cardOrAction)) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid card!' }).end();
+    const actions = ['Gu'];
+
+    if (!playerCards.includes(cardOrAction) && !actions.includes(cardOrAction)) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid card or action!' }).end();
     }
 
-    if (!playerCardsRemaining.includes(cardOrAction)) {
+    if (!playerCardsRemaining.includes(cardOrAction) && !actions.includes(cardOrAction)) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Card already played!' }).end();
     }
 

@@ -211,10 +211,11 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
     const player1CardsRemaining: string[] = player1CardsArr.slice();
     const player2CardsRemaining: string[] = player2CardsArr.slice();
 
-    let player1LastCard: string = '';
-    let player2LastCard: string = '';
+    let player1LastCardOrAction: string = '';
+    let player2LastCardOrAction: string = '';
     const TriTurnWinner: turnWin[] = [];
     let nextPlayerId: number = round.starterPlayer.id;
+    let roundWinner: number;
 
     for (const t of round.turns) {
       if (t.player.id === round.game.player1.id) {
@@ -223,18 +224,26 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
           player1CardsRemaining.splice(remInd, 1);
         }
 
-        player1LastCard = t.cardOrAction;
+        player1LastCardOrAction = t.cardOrAction;
+
+        if (player1LastCardOrAction === 'Gu') {
+          roundWinner = turnWin.player2;
+        }
       } else {
         const remInd = player2CardsRemaining.indexOf(t.cardOrAction);
         if (remInd !== -1) {
           player2CardsRemaining.splice(remInd, 1);
         }
 
-        player2LastCard = t.cardOrAction;
+        player2LastCardOrAction = t.cardOrAction;
+
+        if (player2LastCardOrAction === 'Gu') {
+          roundWinner = turnWin.player1;
+        }
       }
 
-      if (player1LastCard.length && player2LastCard.length) {
-        const winner = turnWinner(player1LastCard, player2LastCard, round.trumpCard);
+      if (!roundWinner && player1LastCardOrAction.length && player2LastCardOrAction.length) {
+        const winner = turnWinner(player1LastCardOrAction, player2LastCardOrAction, round.trumpCard);
         TriTurnWinner.push(winner);
 
         switch (winner) {
@@ -251,17 +260,16 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
             break;
         }
 
-        player1LastCard = '';
-        player2LastCard = '';
-      } else if (player1LastCard.length) {
+        player1LastCardOrAction = '';
+        player2LastCardOrAction = '';
+      } else if (player1LastCardOrAction.length) {
         nextPlayerId = round.game.player2.id;
-      } else if (player2LastCard.length) {
+      } else if (player2LastCardOrAction.length) {
         nextPlayerId = round.game.player1.id;
       }
     }
 
-    let roundWinner: number;
-    if (TriTurnWinner.length >= 2) {
+    if (!roundWinner && TriTurnWinner.length >= 2) {
       if (TriTurnWinner.filter((x) => x === turnWin.player1).length == 2) {
         roundWinner = turnWin.player1;
       } else if (TriTurnWinner.filter((x) => x === turnWin.player2).length == 2) {
@@ -292,6 +300,10 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
           roundWinner = turnWin.player2;
         }
       }
+    }
+
+    if (roundWinner) {
+      nextPlayerId = null;
     }
 
     return {
