@@ -76,23 +76,7 @@ export async function playTurn(req: Request, res: Response) {
 
     if (!roundTurns) {
       return res.status(StatusCodes.NOT_FOUND).end();
-    }
-
-    if (roundTurns.roundWinner) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Round is over!' }).end();
-    }
-
-    if (roundTurns.nextPlayerId !== (req as jwtRequest).jwtToken.userId) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Not your turn!' }).end();
-    }
-
-    if (roundTurns.round.turns.length == 0 && prevSeq !== 0) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
-    }
-
-    if (roundTurns.round.turns.length && prevSeq !== roundTurns.round.turns.at(-1).seq) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
-    }
+    }    
 
     let playerCards: Array<string>;
     let playerCardsRemaining: Array<string>;
@@ -104,6 +88,22 @@ export async function playTurn(req: Request, res: Response) {
       playerCardsRemaining = roundTurns.player2CardsRemaining;
     } else {
       return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
+    }
+
+    if (roundTurns.roundWinner) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Round is over!' }).end();
+    }    
+
+    if (roundTurns.round.turns.length == 0 && prevSeq !== 0) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
+    }
+
+    if (roundTurns.round.turns.length && prevSeq !== roundTurns.round.turns.at(-1).seq) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid sequence!' }).end();
+    }
+
+    if (roundTurns.nextPlayerId !== (req as jwtRequest).jwtToken.userId) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Not your turn!' }).end();
     }
 
     if (!playerCards.includes(cardOrAction)) {
