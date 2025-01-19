@@ -58,4 +58,7 @@ export class users {
 
   @OneToMany(() => turns, (turn) => turn.player)
   turns?: turns[];
+
+  @OneToMany(() => games, (game) => game.winnerPlayer)
+  winners?: games[];
 }

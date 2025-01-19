@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTurn, getActions, getAllInfoTurnsByRound, updateRound } from '../entity/games-db';
+import { createTurn, getActions, getActionsElevations, getAllInfoTurnsByRound, updateRound } from '../entity/games-db';
 import { jwtRequest } from '../router/middlewares';
 
 export async function checkTurn(req: Request, res: Response) {
@@ -58,6 +58,7 @@ export async function checkTurn(req: Request, res: Response) {
         player2: roundTurns.round.game.player2.username,
         playerCards,
         playerCardsRemaining,
+        turnsCount: turnFmtArr.length,
         turns: turnFmtArr,
         TriTurnWinner: roundTurns.TriTurnWinner,
         roundWinner: roundTurns.roundWinner,
@@ -75,7 +76,7 @@ export async function playTurn(req: Request, res: Response) {
 
     const roundTurns = await getAllInfoTurnsByRound(roundId);
 
-    if (!roundTurns) {
+    if (!roundTurns || !roundTurns.round) {
       return res.status(StatusCodes.NOT_FOUND).end();
     }
 
@@ -108,6 +109,7 @@ export async function playTurn(req: Request, res: Response) {
     }
 
     const actions = getActions();
+    const actionsElevations = getActionsElevations();
 
     if (!playerCards.includes(cardOrAction) && !actions.includes(cardOrAction)) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid card or action!' }).end();
@@ -117,16 +119,27 @@ export async function playTurn(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Card already played!' }).end();
     }
 
-    if (roundTurns.askElevate && roundTurns.askElevate.length === 0 && (cardOrAction === 'Ys' || cardOrAction === 'No')) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Aswer for no question!' }).end();
+    if (roundTurns.askElevate?.length === 0 && (cardOrAction === 'Ys' || cardOrAction === 'No')) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Aswer for no elevation!' }).end();
     }
 
-    if (roundTurns.askElevate === 'Three' && cardOrAction !== 'Ys' && cardOrAction !== 'No') {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Question for question!' }).end();
+    if (roundTurns.askElevate?.length && !actions.includes(cardOrAction)) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Elevation needs a answer!' }).end();
     }
 
-    if (roundTurns.askElevate === 'Three' && cardOrAction === 'Ys') {
-      roundTurns.round.score = 3;
+    if (actionsElevations.find((x) => x.elevation === cardOrAction)?.score <= roundTurns.round.score) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Elevation already done!' }).end();
+    }
+
+    if (
+      actionsElevations.find((x) => x.elevation === cardOrAction)?.score <=
+      actionsElevations.find((x) => x.elevation === roundTurns.askElevate)?.score
+    ) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Elevation aswered must be upper!' }).end();
+    }
+
+    if (roundTurns.askElevate?.length && (cardOrAction === 'Ys' || actionsElevations.find((x) => x.elevation === cardOrAction))) {
+      roundTurns.round.score = actionsElevations.find((x) => x.elevation === roundTurns.askElevate).score;
       updateRound(roundTurns.round);
     }
 
@@ -137,7 +150,10 @@ export async function playTurn(req: Request, res: Response) {
       cardOrAction,
       when: new Date(),
     });
-    //const turn = { id: 'ppp' };
+    /*    
+    const turn = { id: 'ppp' };
+    console.log(roundTurns);    
+    */
 
     return res
       .status(StatusCodes.OK)

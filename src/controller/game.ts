@@ -34,6 +34,7 @@ export async function infoGame(req: Request, res: Response) {
         lastRoundId: game.rounds[game.rounds.length - 1]?.id,
         lastRoundSeq: game.rounds[game.rounds.length - 1]?.seq,
         endPlay: game.endPlay,
+        winnerPlayerId: game.winnerPlayer?.id,
       })
       .end();
   } catch (error) {

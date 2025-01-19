@@ -31,12 +31,15 @@ export class games {
 
   @Column({
     nullable: true,
-    type: 'date',
+    type: 'datetime',
   })
   endPlay?: Date;
 
   @OneToMany(() => rounds, (round) => round.game)
   rounds?: rounds[];
+
+  @ManyToOne(() => users, (user) => user.winners)
+  winnerPlayer?: users;
 }
 
 @Entity()

@@ -21,6 +21,7 @@ export async function getGameById(gameId: number) {
       player1: true,
       player2: true,
       rounds: true,
+      winnerPlayer: true,
     },
   });
 }
@@ -186,7 +187,28 @@ function turnWinner(player1Card: string, player2Card: string, trumpCard: string)
 }
 
 export function getActions() {
-  return ['Gu', 'Ys', 'No', 'Tr'];
+  return ['Gu', 'Ys', 'No', 'Tr', 'Sx', 'Nn', 'Tw'];
+}
+
+export function getActionsElevations() {
+  return [
+    {
+      elevation: 'Tr',
+      score: 3,
+    },
+    {
+      elevation: 'Sx',
+      score: 6,
+    },
+    {
+      elevation: 'Nn',
+      score: 9,
+    },
+    {
+      elevation: 'Tw',
+      score: 12,
+    },
+  ];
 }
 
 export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds> {
@@ -224,6 +246,8 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
     let nextPlayerId: number = round.starterPlayer.id;
     let roundWinner: number;
     let askElevate: string;
+
+    const actionsElevate = getActionsElevations().map((x) => x.elevation);
 
     for (const t of round.turns) {
       askElevate = '';
@@ -283,26 +307,44 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
       }
 
       if (player1LastAction.length && player2LastAction.length) {
-        if (player1LastAction === 'Tr' && player2LastAction === 'No') {
+        if (player2LastAction === 'No') {
           roundWinner = turnWin.player1;
-        } else if (player1LastAction === 'No' && player2LastAction === 'Tr') {
+          player1LastAction = '';
+          player2LastAction = '';
+        } else if (player1LastAction === 'No') {
           roundWinner = turnWin.player2;
-        }
+          player1LastAction = '';
+          player2LastAction = '';
+        } else {
+          if (actionsElevate.includes(player1LastAction) && player2LastAction === 'Ys') {
+            nextPlayerId = round.game.player1.id;
+            player1LastAction = '';
+            player2LastAction = '';
+          } else if (actionsElevate.includes(player2LastAction) && player1LastAction === 'Ys') {
+            nextPlayerId = round.game.player2.id;
+            player1LastAction = '';
+            player2LastAction = '';
+          } else {
+            const pl1act = actionsElevate.indexOf(player1LastAction);
+            const pl2act = actionsElevate.indexOf(player2LastAction);
 
-        if (player1LastAction === 'Tr') {
-          nextPlayerId = round.game.player1.id;
-        } else if (player2LastAction === 'Tr') {
-          nextPlayerId = round.game.player2.id;
+            if (pl1act < pl2act) {
+              nextPlayerId = round.game.player1.id;
+              player1LastAction = '';
+              askElevate = player2LastAction;
+            } else {
+              nextPlayerId = round.game.player2.id;
+              player2LastAction = '';
+              askElevate = player1LastAction;
+            }
+          }
         }
-
-        player1LastAction = '';
-        player2LastAction = '';
       } else if (player1LastAction.length) {
         nextPlayerId = round.game.player2.id;
-        askElevate = 'Three';
+        askElevate = player1LastAction;
       } else if (player2LastAction.length) {
         nextPlayerId = round.game.player1.id;
-        askElevate = 'Three';
+        askElevate = player2LastAction;
       }
     }
 

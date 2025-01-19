@@ -179,8 +179,8 @@ export async function allRounds(req: Request, res: Response) {
     return res
       .status(StatusCodes.OK)
       .json({
-        rounds: roundsFmt,
         roundsCount: roundsFmt.length,
+        rounds: roundsFmt,
       })
       .end();
   } catch (error) {
