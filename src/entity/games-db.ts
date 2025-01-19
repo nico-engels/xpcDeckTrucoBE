@@ -148,6 +148,7 @@ class InfoRonds {
   TriTurnWinner?: turnWin[];
   roundWinner?: turnWin;
   nextPlayerId?: number;
+  askElevate?: string;
 }
 
 function turnWinner(player1Card: string, player2Card: string, trumpCard: string) {
@@ -184,6 +185,10 @@ function turnWinner(player1Card: string, player2Card: string, trumpCard: string)
   return turnWin.draw;
 }
 
+export function getActions() {
+  return ['Gu', 'Ys', 'No', 'Tr'];
+}
+
 export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds> {
   const round = (
     await appDataSource.getRepository(rounds).find({
@@ -211,23 +216,30 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
     const player1CardsRemaining: string[] = player1CardsArr.slice();
     const player2CardsRemaining: string[] = player2CardsArr.slice();
 
-    let player1LastCardOrAction: string = '';
-    let player2LastCardOrAction: string = '';
+    let player1LastCard: string = '';
+    let player2LastCard: string = '';
+    let player1LastAction: string = '';
+    let player2LastAction: string = '';
     const TriTurnWinner: turnWin[] = [];
     let nextPlayerId: number = round.starterPlayer.id;
     let roundWinner: number;
+    let askElevate: string;
 
     for (const t of round.turns) {
+      askElevate = '';
+
       if (t.player.id === round.game.player1.id) {
         const remInd = player1CardsRemaining.indexOf(t.cardOrAction);
         if (remInd !== -1) {
           player1CardsRemaining.splice(remInd, 1);
         }
 
-        player1LastCardOrAction = t.cardOrAction;
-
-        if (player1LastCardOrAction === 'Gu') {
+        if (t.cardOrAction === 'Gu') {
           roundWinner = turnWin.player2;
+        } else if (getActions().includes(t.cardOrAction)) {
+          player1LastAction = t.cardOrAction;
+        } else {
+          player1LastCard = t.cardOrAction;
         }
       } else {
         const remInd = player2CardsRemaining.indexOf(t.cardOrAction);
@@ -235,15 +247,17 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
           player2CardsRemaining.splice(remInd, 1);
         }
 
-        player2LastCardOrAction = t.cardOrAction;
-
-        if (player2LastCardOrAction === 'Gu') {
+        if (t.cardOrAction === 'Gu') {
           roundWinner = turnWin.player1;
+        } else if (getActions().includes(t.cardOrAction)) {
+          player2LastAction = t.cardOrAction;
+        } else {
+          player2LastCard = t.cardOrAction;
         }
       }
 
-      if (!roundWinner && player1LastCardOrAction.length && player2LastCardOrAction.length) {
-        const winner = turnWinner(player1LastCardOrAction, player2LastCardOrAction, round.trumpCard);
+      if (player1LastCard.length && player2LastCard.length) {
+        const winner = turnWinner(player1LastCard, player2LastCard, round.trumpCard);
         TriTurnWinner.push(winner);
 
         switch (winner) {
@@ -260,12 +274,35 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
             break;
         }
 
-        player1LastCardOrAction = '';
-        player2LastCardOrAction = '';
-      } else if (player1LastCardOrAction.length) {
+        player1LastCard = '';
+        player2LastCard = '';
+      } else if (player1LastCard.length) {
         nextPlayerId = round.game.player2.id;
-      } else if (player2LastCardOrAction.length) {
+      } else if (player2LastCard.length) {
         nextPlayerId = round.game.player1.id;
+      }
+
+      if (player1LastAction.length && player2LastAction.length) {
+        if (player1LastAction === 'Tr' && player2LastAction === 'No') {
+          roundWinner = turnWin.player1;
+        } else if (player1LastAction === 'No' && player2LastAction === 'Tr') {
+          roundWinner = turnWin.player2;
+        }
+
+        if (player1LastAction === 'Tr') {
+          nextPlayerId = round.game.player1.id;
+        } else if (player2LastAction === 'Tr') {
+          nextPlayerId = round.game.player2.id;
+        }
+
+        player1LastAction = '';
+        player2LastAction = '';
+      } else if (player1LastAction.length) {
+        nextPlayerId = round.game.player2.id;
+        askElevate = 'Three';
+      } else if (player2LastAction.length) {
+        nextPlayerId = round.game.player1.id;
+        askElevate = 'Three';
       }
     }
 
@@ -315,6 +352,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
       TriTurnWinner,
       roundWinner,
       nextPlayerId,
+      askElevate,
     };
   }
 

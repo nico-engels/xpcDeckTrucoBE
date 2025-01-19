@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTurn, getAllInfoTurnsByRound } from '../entity/games-db';
+import { createTurn, getActions, getAllInfoTurnsByRound, updateRound } from '../entity/games-db';
 import { jwtRequest } from '../router/middlewares';
 
 export async function checkTurn(req: Request, res: Response) {
@@ -50,6 +50,7 @@ export async function checkTurn(req: Request, res: Response) {
         gameId: roundTurns.round.game.id,
         starterPlayer: roundTurns.round.starterPlayer.id,
         nextPlayerId: roundTurns.nextPlayerId,
+        score: roundTurns.round.score,
         trumpCard: roundTurns.round.trumpCard,
         player1Id: roundTurns.round.game.player1.id,
         player1: roundTurns.round.game.player1.username,
@@ -106,7 +107,7 @@ export async function playTurn(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Not your turn!' }).end();
     }
 
-    const actions = ['Gu'];
+    const actions = getActions();
 
     if (!playerCards.includes(cardOrAction) && !actions.includes(cardOrAction)) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid card or action!' }).end();
@@ -116,6 +117,19 @@ export async function playTurn(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Card already played!' }).end();
     }
 
+    if (roundTurns.askElevate && roundTurns.askElevate.length === 0 && (cardOrAction === 'Ys' || cardOrAction === 'No')) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Aswer for no question!' }).end();
+    }
+
+    if (roundTurns.askElevate === 'Three' && cardOrAction !== 'Ys' && cardOrAction !== 'No') {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Question for question!' }).end();
+    }
+
+    if (roundTurns.askElevate === 'Three' && cardOrAction === 'Ys') {
+      roundTurns.round.score = 3;
+      updateRound(roundTurns.round);
+    }
+
     const turn = await createTurn({
       round: { id: roundId },
       seq: prevSeq + 1,
@@ -123,6 +137,7 @@ export async function playTurn(req: Request, res: Response) {
       cardOrAction,
       when: new Date(),
     });
+    //const turn = { id: 'ppp' };
 
     return res
       .status(StatusCodes.OK)

@@ -180,6 +180,7 @@ export async function allRounds(req: Request, res: Response) {
       .status(StatusCodes.OK)
       .json({
         rounds: roundsFmt,
+        roundsCount: roundsFmt.length,
       })
       .end();
   } catch (error) {
