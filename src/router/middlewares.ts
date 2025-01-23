@@ -12,12 +12,12 @@ export interface jwtRequest extends Request {
 }
 
 export async function validadeTok(req: Request, res: Response, next: NextFunction) {
-  const token = req.header('Authorization')?.replace(/^Bearer /, '');
-  if (!token) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
-  }
-
   try {
+    const token = req.header('Authorization')?.replace(/^Bearer /, '');
+    if (!token) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
+    }
+
     const decoded = jwt.verify(token, process.env.TOK_SECRET) as jwtUserIdPayload;
     (req as jwtRequest).jwtToken = {
       username: decoded.username,

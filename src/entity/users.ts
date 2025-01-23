@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 
 import { games, rounds, turns } from './games';
 
@@ -61,4 +61,39 @@ export class users {
 
   @OneToMany(() => games, (game) => game.winnerPlayer)
   winners?: games[];
+}
+
+@Entity()
+export class preAuthGames {
+  @PrimaryGeneratedColumn()
+  id?: number;
+
+  @Column({
+    length: 100,
+    type: 'varchar',
+  })
+  player1Link?: string;
+
+  @Column({
+    length: 10,
+    nullable: true,
+    type: 'varchar',
+  })
+  player1DeviceId?: string;
+
+  @Column({
+    length: 100,
+    type: 'varchar',
+  })
+  player2Link?: string;
+
+  @Column({
+    length: 10,
+    nullable: true,
+    type: 'varchar',
+  })
+  player2DeviceId?: string;
+
+  @ManyToOne(() => games, (game) => game.preAuthGames)
+  game?: games;
 }

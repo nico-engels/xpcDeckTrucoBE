@@ -1,13 +1,15 @@
 select *
   from users;
 
+delete from user where id = 17;
+
 select *
   from games
  where 1 = 1
    and id = 19;
 
 update games
-   set player2Score = 0
+   set winnerPlayerId = 21
  where 1 = 1
    and id = 19;
 
@@ -15,14 +17,14 @@ update games
 select *
   from rounds
  where 1 = 1
-   --and id = 15
-   and gameId = 19;  
+   --and id = 16
+   and gameId = 19
+;  
 
 update rounds
-   set winnerPlayerId = null
-     , finished = 0
+   set score = 3
  where 1 = 1
-   and id = 6;
+   and id = 16;
 
 -- Turnos (mãos)
 select *

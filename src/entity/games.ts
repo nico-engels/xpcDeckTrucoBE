@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { users } from './users';
+import { users, preAuthGames } from './users';
 
 @Entity()
 export class games {
@@ -40,6 +40,9 @@ export class games {
 
   @ManyToOne(() => users, (user) => user.winners)
   winnerPlayer?: users;
+
+  @OneToMany(() => preAuthGames, (preAuthGame) => preAuthGame.game)
+  preAuthGames?: preAuthGames;
 }
 
 @Entity()

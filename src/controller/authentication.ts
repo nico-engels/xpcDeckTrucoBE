@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createUser, updateUser, getUserByUsername, getUserByRpAddress, getUserByEmail } from '../entity/users-db';
+import { createGame } from '../entity/games-db';
+import { users } from '../entity/users';
+import { createUser, createPreAuthGame, getPreGameByLink, getUserByUsername, getUserByRpAddress, getUserByEmail, updatePreAuthGame, updateUser} from '../entity/users-db';
+import { newRound } from './round';
+import { jwtRequest } from '../router/middlewares';
 import { saltRandom, authentication, generateAccessTok } from '../util';
 
 export async function login(req: Request, res: Response) {
@@ -54,7 +58,7 @@ export async function register(req: Request, res: Response) {
     const { username, email, rpAddress, password } = req.body;
     let username_valid = username;
 
-    if (!email && !rpAddress && username != 'liza(cpu)' && username != 'roque(cpu)') {
+    if (!email && !rpAddress && username != 'xt-admin' && username != 'liza(cpu)' && username != 'roque(cpu)') {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Need e-mail or xrp-address!' }).end();
     }
 
@@ -117,7 +121,7 @@ export async function register(req: Request, res: Response) {
 
 export async function changePassword(req: Request, res: Response) {
   try {
-    const user = await getUserByUsername(req.jwtToken.username);
+    const user = await getUserByUsername((req as jwtRequest).jwtToken.username);
     if (!user) {
       return res.status(StatusCodes.CONFLICT).json({ message: `Username '$req.jwtToken.username' not exist!` }).end();
     }
@@ -145,6 +149,143 @@ export async function changePassword(req: Request, res: Response) {
       .json({
         id: user.id,
         message: 'ok',
+      })
+      .end();
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+export async function newPreAuthGame(req: Request, res: Response) {
+  try {
+    if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
+      return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
+
+    const { player1username, player2username } = req.body;
+
+    let player1: users;
+    let player2: users;
+
+    if (player1username && player2username) {
+      if (player1username === player2username) {
+        return res.status(StatusCodes.CONFLICT).json({ message: 'Username cannot reference itself!' }).end();
+      } else {
+        player1 = await getUserByUsername(player1username);
+        player2 = await getUserByUsername(player2username);
+      }
+    }
+
+    if (!player1 || !player2) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Player not found!' }).end();
+    }
+    const game = await createGame({
+      player1: player1,
+      player2: player2,
+      player1Score: 0,
+      player2Score: 0,
+    });
+    await newRound(game, 1);
+    const newPreGame = await createPreAuthGame({ game: game });
+
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        message: 'ok',
+        id: newPreGame.id,
+        player1Link: newPreGame.player1Link,
+        player2Link: newPreGame.player2Link,
+      })
+      .end();
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+export async function generatePreGameToken(req: Request, res: Response) {
+  try {
+    const { playerLink, deviceId } = req.body;    
+
+    if (!playerLink || !deviceId) {
+      return res.status(StatusCodes.NOT_FOUND).end();
+    }
+
+    const preGame = await getPreGameByLink(playerLink);
+
+    if (!preGame) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    }
+
+    let player: string;
+    let jwt_tok: string;
+    if (playerLink === preGame.player1Link) {
+      if (preGame.player1DeviceId && preGame.player1DeviceId !== deviceId) {
+        return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
+      }
+      preGame.player1DeviceId = deviceId;
+
+      player = preGame.game.player1.username;
+      jwt_tok = generateAccessTok(preGame.game.player1.username, preGame.game.player1.id);
+    } else {
+      if (preGame.player2DeviceId && preGame.player2DeviceId !== deviceId) {
+        return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
+      }
+      preGame.player2DeviceId = deviceId;
+
+      player = preGame.game.player2.username;
+      jwt_tok = generateAccessTok(preGame.game.player2.username, preGame.game.player2.id);
+    }    
+
+    await updatePreAuthGame(preGame);
+    
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        player: player,
+        jwt_tok
+      })
+      .end();
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+export async function resetPreGameToken(req: Request, res: Response) {
+  try {
+    if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
+      return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
+    
+    const { playerLink } = req.body;    
+
+    if (!playerLink) {
+      return res.status(StatusCodes.NOT_FOUND).end();
+    }
+
+    const preGame = await getPreGameByLink(playerLink);
+
+    if (!preGame) {
+      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    }
+
+    let player: string;
+    if (playerLink === preGame.player1Link) {
+      preGame.player1DeviceId = null;
+      player = 'p1';
+    } else {
+      preGame.player2DeviceId = null;
+      player = 'p2';
+    }    
+
+    await updatePreAuthGame(preGame);
+    
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        message: 'ok ' + player
       })
       .end();
   } catch (error) {
