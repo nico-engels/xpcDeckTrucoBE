@@ -1,12 +1,12 @@
 select *
   from users;
 
-delete from user where id = 17;
+delete from users where id = 17;
 
 select *
   from games
  where 1 = 1
-   and id = 19;
+   and id = 21;
 
 update games
    set winnerPlayerId = 21
@@ -18,7 +18,7 @@ select *
   from rounds
  where 1 = 1
    --and id = 16
-   and gameId = 19
+   and gameId = 21
 ;  
 
 update rounds
@@ -34,3 +34,7 @@ select *
  order by "when";
 
 delete from turns where id = 37;
+
+-- Geração de links de acesso fácil
+select *
+  from pre_auth_games;
