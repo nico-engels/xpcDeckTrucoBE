@@ -47,6 +47,7 @@ export async function checkTurn(req: Request, res: Response) {
       .status(StatusCodes.OK)
       .json({
         roundId: roundTurns.round.id,
+        roundSeq: roundTurns.round.seq,
         gameId: roundTurns.round.game.id,
         starterPlayer: roundTurns.round.starterPlayer.id,
         nextPlayerId: roundTurns.nextPlayerId,
@@ -62,6 +63,7 @@ export async function checkTurn(req: Request, res: Response) {
         turns: turnFmtArr,
         TriTurnWinner: roundTurns.TriTurnWinner,
         roundWinner: roundTurns.roundWinner,
+        lastTurnSeq: roundTurns.lastTurnSeq,
       })
       .end();
   } catch (error) {
@@ -73,6 +75,10 @@ export async function checkTurn(req: Request, res: Response) {
 export async function playTurn(req: Request, res: Response) {
   try {
     const { roundId, prevSeq, cardOrAction } = req.body;
+
+    if (!roundId || prevSeq === undefined || !cardOrAction) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid request!' }).end();
+    }
 
     const roundTurns = await getAllInfoTurnsByRound(roundId);
 

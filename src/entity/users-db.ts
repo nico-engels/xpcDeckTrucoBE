@@ -23,11 +23,10 @@ export async function updateUser(user: users) {
 }
 
 export async function createPreAuthGame(pag: preAuthGames) {
+  pag.player1Link = saltRandom().substring(0, 10);
+  pag.player2Link = saltRandom().substring(0, 10);
 
-  pag.player1Link = saltRandom().substring(0, 100);
-  pag.player2Link = saltRandom().substring(0, 100);
-
-  return await appDataSource.getRepository(preAuthGames).save(pag);  
+  return await appDataSource.getRepository(preAuthGames).save(pag);
 }
 
 export async function updatePreAuthGame(pag: preAuthGames) {
@@ -35,14 +34,13 @@ export async function updatePreAuthGame(pag: preAuthGames) {
 }
 
 export async function getPreGameByLink(link: string) {
-  return await appDataSource.getRepository(preAuthGames).findOne({ where:  
-    [{ player1Link: link  }, { player2Link:  link }]  
-  , relations: {
-    game: {
-      player1: true,
-      player2: true
-    }
-  }
-}
-);
+  return await appDataSource.getRepository(preAuthGames).findOne({
+    where: [{ player1Link: link }, { player2Link: link }],
+    relations: {
+      game: {
+        player1: true,
+        player2: true,
+      },
+    },
+  });
 }

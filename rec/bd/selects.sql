@@ -9,16 +9,16 @@ select *
    and id = 21;
 
 update games
-   set winnerPlayerId = 21
+   set winnerPlayerId = 20
  where 1 = 1
-   and id = 19;
+   and id = 21;
 
 -- Rounds
 select *
   from rounds
  where 1 = 1
-   --and id = 16
-   and gameId = 21
+   -- and id = 18
+   -- and gameId = 19
 ;  
 
 update rounds
@@ -30,7 +30,8 @@ update rounds
 select *
   from turns
  where 1 = 1 
-   and roundId = 15
+   -- and roundId = 15
+   and gameId = 21
  order by "when";
 
 delete from turns where id = 37;

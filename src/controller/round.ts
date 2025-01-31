@@ -80,6 +80,7 @@ export async function finishRound(req: Request, res: Response) {
 
     if (roundTurns.round.game.player1Score === 12 || roundTurns.round.game.player2Score === 12) {
       roundTurns.round.game.endPlay = new Date();
+      roundTurns.round.game.winnerPlayer = { id: winnerId };
     }
 
     let nextStartPlayerId: number;
@@ -206,8 +207,6 @@ export async function lastRound(req: Request, res: Response) {
       playerCards = chunkSubstr(lastRound.player1Cards, 2);
     } else if (lastRound.game.player2.id == (req as jwtRequest).jwtToken.userId) {
       playerCards = chunkSubstr(lastRound.player2Cards, 2);
-    } else {
-      return res.status(StatusCodes.FORBIDDEN).json({ message: 'You do not participate in this game!' }).end();
     }
 
     return res
@@ -219,6 +218,7 @@ export async function lastRound(req: Request, res: Response) {
         trumpCard: lastRound.trumpCard,
         starterPlayer: lastRound.starterPlayer.id,
         winnerPlayer: lastRound.winnerPlayer?.id,
+        score: lastRound.score,
       })
       .end();
   } catch (error) {

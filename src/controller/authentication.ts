@@ -3,7 +3,16 @@ import { StatusCodes } from 'http-status-codes';
 
 import { createGame } from '../entity/games-db';
 import { users } from '../entity/users';
-import { createUser, createPreAuthGame, getPreGameByLink, getUserByUsername, getUserByRpAddress, getUserByEmail, updatePreAuthGame, updateUser} from '../entity/users-db';
+import {
+  createUser,
+  createPreAuthGame,
+  getPreGameByLink,
+  getUserByUsername,
+  getUserByRpAddress,
+  getUserByEmail,
+  updatePreAuthGame,
+  updateUser,
+} from '../entity/users-db';
 import { newRound } from './round';
 import { jwtRequest } from '../router/middlewares';
 import { saltRandom, authentication, generateAccessTok } from '../util';
@@ -206,7 +215,7 @@ export async function newPreAuthGame(req: Request, res: Response) {
 
 export async function generatePreGameToken(req: Request, res: Response) {
   try {
-    const { playerLink, deviceId } = req.body;    
+    const { playerLink, deviceId } = req.body;
 
     if (!playerLink || !deviceId) {
       return res.status(StatusCodes.NOT_FOUND).end();
@@ -219,7 +228,8 @@ export async function generatePreGameToken(req: Request, res: Response) {
     }
 
     let player: string;
-    let jwt_tok: string;
+    let playerId: string;
+    let jwtTok: string;
     if (playerLink === preGame.player1Link) {
       if (preGame.player1DeviceId && preGame.player1DeviceId !== deviceId) {
         return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
@@ -227,7 +237,8 @@ export async function generatePreGameToken(req: Request, res: Response) {
       preGame.player1DeviceId = deviceId;
 
       player = preGame.game.player1.username;
-      jwt_tok = generateAccessTok(preGame.game.player1.username, preGame.game.player1.id);
+      playerId = preGame.game.player1.id;
+      jwtTok = generateAccessTok(preGame.game.player1.username, preGame.game.player1.id, preGame.game.id);
     } else {
       if (preGame.player2DeviceId && preGame.player2DeviceId !== deviceId) {
         return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
@@ -235,16 +246,19 @@ export async function generatePreGameToken(req: Request, res: Response) {
       preGame.player2DeviceId = deviceId;
 
       player = preGame.game.player2.username;
-      jwt_tok = generateAccessTok(preGame.game.player2.username, preGame.game.player2.id);
-    }    
+      playerId = preGame.game.player2.id;
+      jwtTok = generateAccessTok(preGame.game.player2.username, preGame.game.player2.id, preGame.game.id);
+    }
 
     await updatePreAuthGame(preGame);
-    
+
     return res
       .status(StatusCodes.OK)
       .json({
-        player: player,
-        jwt_tok
+        playerId,
+        player,
+        jwtTok: jwtTok,
+        gameId: preGame.game.id,
       })
       .end();
   } catch (error) {
@@ -258,8 +272,8 @@ export async function resetPreGameToken(req: Request, res: Response) {
     if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
       return res.status(StatusCodes.UNAUTHORIZED).end();
     }
-    
-    const { playerLink } = req.body;    
+
+    const { playerLink } = req.body;
 
     if (!playerLink) {
       return res.status(StatusCodes.NOT_FOUND).end();
@@ -278,14 +292,14 @@ export async function resetPreGameToken(req: Request, res: Response) {
     } else {
       preGame.player2DeviceId = null;
       player = 'p2';
-    }    
+    }
 
     await updatePreAuthGame(preGame);
-    
+
     return res
       .status(StatusCodes.OK)
       .json({
-        message: 'ok ' + player
+        message: 'ok ' + player,
       })
       .end();
   } catch (error) {

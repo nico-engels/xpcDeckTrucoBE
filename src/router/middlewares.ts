@@ -5,6 +5,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 export interface jwtUserIdPayload extends JwtPayload {
   username: string;
   userId: number;
+  gameId?: number;
 }
 
 export interface jwtRequest extends Request {
@@ -14,7 +15,7 @@ export interface jwtRequest extends Request {
 export async function validadeTok(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.header('Authorization')?.replace(/^Bearer /, '');
-    if (!token) {
+    if (!token || token === 'undefined') {
       return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
     }
 
@@ -22,6 +23,7 @@ export async function validadeTok(req: Request, res: Response, next: NextFunctio
     (req as jwtRequest).jwtToken = {
       username: decoded.username,
       userId: decoded.userId,
+      gameId: decoded.gameId,
     };
   } catch (error) {
     console.log(error);

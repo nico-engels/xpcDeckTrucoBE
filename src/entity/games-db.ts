@@ -150,6 +150,7 @@ class InfoRonds {
   roundWinner?: turnWin;
   nextPlayerId?: number;
   askElevate?: string;
+  lastTurnSeq?: number;
 }
 
 function turnWinner(player1Card: string, player2Card: string, trumpCard: string) {
@@ -246,6 +247,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
     let nextPlayerId: number = round.starterPlayer.id;
     let roundWinner: number;
     let askElevate: string;
+    let lastTurnSeq: number;
 
     const actionsElevate = getActionsElevations().map((x) => x.elevation);
 
@@ -346,6 +348,8 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
         nextPlayerId = round.game.player1.id;
         askElevate = player2LastAction;
       }
+
+      lastTurnSeq = t.seq;
     }
 
     if (!roundWinner && TriTurnWinner.length >= 2) {
@@ -395,6 +399,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
       roundWinner,
       nextPlayerId,
       askElevate,
+      lastTurnSeq,
     };
   }
 
