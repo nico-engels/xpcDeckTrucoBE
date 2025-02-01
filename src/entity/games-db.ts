@@ -168,15 +168,15 @@ function turnWinner(player1Card: string, player2Card: string, trumpCard: string)
   const player2CardNumber = ranks.indexOf(player2Card[0]) + suits.indexOf(player2Card[1]) * 10;
   const trumpCardNumber = ranks.indexOf(trumpCard[0]) + suits.indexOf(trumpCard[1]) * 10;
 
-  if ((trumpCardNumber % 10) + 1 === player1CardNumber % 10 && (trumpCardNumber % 10) + 1 === player2CardNumber % 10) {
+  if ((trumpCardNumber + 1) % 10 === player1CardNumber % 10 && (trumpCardNumber + 1) % 10 === player2CardNumber % 10) {
     if (Math.floor(player1CardNumber / 10) > Math.floor(player2CardNumber / 10)) {
       return turnWin.player1;
     } else {
       return turnWin.player2;
     }
-  } else if ((trumpCardNumber % 10) + 1 === player1CardNumber % 10) {
+  } else if ((trumpCardNumber + 1) % 10 === player1CardNumber % 10) {
     return turnWin.player1;
-  } else if ((trumpCardNumber % 10) + 1 === player2CardNumber % 10) {
+  } else if ((trumpCardNumber + 1) % 10 === player2CardNumber % 10) {
     return turnWin.player2;
   } else if (player1CardNumber % 10 > player2CardNumber % 10) {
     return turnWin.player1;

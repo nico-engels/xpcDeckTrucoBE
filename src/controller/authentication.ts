@@ -228,7 +228,7 @@ export async function generatePreGameToken(req: Request, res: Response) {
     }
 
     let player: string;
-    let playerId: string;
+    let playerId: number;
     let jwtTok: string;
     if (playerLink === preGame.player1Link) {
       if (preGame.player1DeviceId && preGame.player1DeviceId !== deviceId) {
