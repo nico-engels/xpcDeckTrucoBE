@@ -23,8 +23,8 @@ export async function updateUser(user: users) {
 }
 
 export async function createPreAuthGame(pag: preAuthGames) {
-  pag.player1Link = saltRandom().substring(0, 10);
-  pag.player2Link = saltRandom().substring(0, 10);
+  pag.player1Link = saltRandom().substring(0, 15).replaceAll(/[/+]/g, '');
+  pag.player2Link = saltRandom().substring(0, 15).replaceAll(/[/+]/g, '');
 
   return await appDataSource.getRepository(preAuthGames).save(pag);
 }
