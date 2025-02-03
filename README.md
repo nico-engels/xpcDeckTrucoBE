@@ -5,7 +5,7 @@ Usando arquitetura de microserviços para melhor separação da lógica de negó
 persistência com a apresentação consumindo os endpoints disponibilizados.
 
 Desenvolvido o jogo de Truco Paulista popularmente jogado no sul com o baralho de
-40 cartas ((Ref)[https://pt.wikipedia.org/wiki/Truco#Truco_paulista]). Implementado
+40 cartas ([Ref](https://pt.wikipedia.org/wiki/Truco#Truco_paulista)). Implementado
 os módulos de autenticação e o motor do jogo, aplicando as regras do Truco: sistema
 de pontuação, distribuição de cartas, máquina de estados da mão sendo jogada e 
 encerramento do jogo.
@@ -13,8 +13,11 @@ encerramento do jogo.
 ## Tecnologias
 
 Typescript 5.7
+
 NodeJs 22.2
+
 TypeORM 0.3
+
 Sqlite 5.1
 
 ## Arquitetura
@@ -28,12 +31,12 @@ deve ser informado a cada requisição dos módulos.
 Para o mapeamento objeto relacional utilizado TypeORM. Na base de dados utilizado 
 o sqlite para o controle de usuários e o histórico de jogos, mãos e rodadas.
 
-# Front-end
+## Front-end
 
 Criado o projeto `xpcDeckTrucoFE-SPASimple` com um protótipo de implementação 
 do front consumindo a API.
 
-# Executando
+## Executando
 
 Deve ser definido no arquivo `.env`:
 - TOK_SECRET: Secret (string) utilizado ao assinar o token JWT. Informar uma 
