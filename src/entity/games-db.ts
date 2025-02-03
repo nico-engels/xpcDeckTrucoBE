@@ -140,7 +140,7 @@ export enum turnWin {
   player2,
 }
 
-class InfoRonds {
+class InfoRounds {
   round: rounds;
   player1CardsArr?: string[];
   player2CardsArr?: string[];
@@ -151,6 +151,7 @@ class InfoRonds {
   nextPlayerId?: number;
   askElevate?: string;
   lastTurnSeq?: number;
+  possibleActions?: string[];
 }
 
 function turnWinner(player1Card: string, player2Card: string, trumpCard: string) {
@@ -212,7 +213,7 @@ export function getActionsElevations() {
   ];
 }
 
-export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds> {
+export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRounds> {
   const round = (
     await appDataSource.getRepository(rounds).find({
       where: {
@@ -247,7 +248,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
     let nextPlayerId: number = round.starterPlayer.id;
     let roundWinner: number;
     let askElevate: string;
-    let lastTurnSeq: number;
+    let lastTurnSeq: number = 0;
 
     const actionsElevate = getActionsElevations().map((x) => x.elevation);
 
@@ -385,8 +386,34 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
       }
     }
 
+    const possibleActions : string[] = [];
     if (roundWinner) {
       nextPlayerId = null;
+    } else {
+      if (askElevate) {
+        possibleActions.push('Ys');
+        possibleActions.push('No');
+
+        if (askElevate == 'Tr') {
+          possibleActions.push('Sx');
+        } else if (askElevate == 'Sx') {
+          possibleActions.push('Nn');
+        } if (askElevate == 'Nn') {
+          possibleActions.push('Tw');
+        }
+
+      } else if (!round.turns.length || (round.turns.length && round.turns.at(-1).cardOrAction != 'Ys')) {
+        if (round.score == 1) {
+          possibleActions.push('Tr');
+        } else if (round.score == 3) {
+          possibleActions.push('Sx');
+        } else if (round.score == 6) {
+          possibleActions.push('Nn');
+        } else if (round.score == 9) {
+          possibleActions.push('Tw');
+        }
+      }
+      possibleActions.push('Gu');
     }
 
     return {
@@ -400,6 +427,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRonds
       nextPlayerId,
       askElevate,
       lastTurnSeq,
+      possibleActions
     };
   }
 
