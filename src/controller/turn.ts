@@ -64,7 +64,7 @@ export async function checkTurn(req: Request, res: Response) {
         TriTurnWinner: roundTurns.TriTurnWinner,
         roundWinner: roundTurns.roundWinner,
         lastTurnSeq: roundTurns.lastTurnSeq,
-        possibleActions: roundTurns.possibleActions
+        possibleActions: roundTurns.possibleActions,
       })
       .end();
   } catch (error) {

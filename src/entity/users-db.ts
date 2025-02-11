@@ -33,6 +33,10 @@ export async function updatePreAuthGame(pag: preAuthGames) {
   return await appDataSource.getRepository(preAuthGames).save(pag);
 }
 
+export async function listPreAuthGame() {
+  return await appDataSource.getRepository(preAuthGames).find();
+}
+
 export async function getPreGameByLink(link: string) {
   return await appDataSource.getRepository(preAuthGames).findOne({
     where: [{ player1Link: link }, { player2Link: link }],

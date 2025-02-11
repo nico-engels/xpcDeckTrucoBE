@@ -10,6 +10,7 @@ import {
   getUserByUsername,
   getUserByRpAddress,
   getUserByEmail,
+  listPreAuthGame,
   updatePreAuthGame,
   updateUser,
 } from '../entity/users-db';
@@ -300,6 +301,27 @@ export async function resetPreGameToken(req: Request, res: Response) {
       .status(StatusCodes.OK)
       .json({
         message: 'ok ' + player,
+      })
+      .end();
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+export async function listPreAuthGames(req: Request, res: Response) {
+  try {
+    if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
+      return res.status(StatusCodes.UNAUTHORIZED).end();
+    }
+
+    const preAuthGames = await listPreAuthGame();
+
+    return res
+      .status(StatusCodes.OK)
+      .json({
+        preAuthGamesCount: preAuthGames.length,
+        preAuthGames,
       })
       .end();
   } catch (error) {

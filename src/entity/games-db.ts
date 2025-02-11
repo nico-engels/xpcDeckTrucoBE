@@ -386,7 +386,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRound
       }
     }
 
-    const possibleActions : string[] = [];
+    const possibleActions: string[] = [];
     if (roundWinner) {
       nextPlayerId = null;
     } else {
@@ -398,10 +398,10 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRound
           possibleActions.push('Sx');
         } else if (askElevate == 'Sx') {
           possibleActions.push('Nn');
-        } if (askElevate == 'Nn') {
+        }
+        if (askElevate == 'Nn') {
           possibleActions.push('Tw');
         }
-
       } else if (!round.turns.length || (round.turns.length && round.turns.at(-1).cardOrAction != 'Ys')) {
         if (round.score == 1) {
           possibleActions.push('Tr');
@@ -427,7 +427,7 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRound
       nextPlayerId,
       askElevate,
       lastTurnSeq,
-      possibleActions
+      possibleActions,
     };
   }
 
