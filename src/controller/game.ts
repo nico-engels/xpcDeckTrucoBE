@@ -13,8 +13,8 @@ export async function infoGame(req: Request, res: Response) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Game!' }).end();
     }
 
-    if ((req as jwtRequest).gameId && (req as jwtRequest).gameId != req.params.gameId) {
-      return res.status(StatusCodes.FORBIDDEN).json({ message: 'Link auth only acess predifined games!' }).end();
+    if ((req as jwtRequest).jwtToken.gameId && (req as jwtRequest).jwtToken.gameId != Number(req.params.gameId)) {
+      return res.status(StatusCodes.FORBIDDEN).json({ message: 'Link auth only acess predefined games!' }).end();
     }
 
     const game = await getGameById(parseInt(req.params.gameId));

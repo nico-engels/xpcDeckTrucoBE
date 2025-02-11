@@ -34,7 +34,36 @@ export async function updatePreAuthGame(pag: preAuthGames) {
 }
 
 export async function listPreAuthGame() {
-  return await appDataSource.getRepository(preAuthGames).find();
+  const preGames = await appDataSource.getRepository(preAuthGames).find({
+    relations: {
+      game: {
+        player1: true,
+        player2: true,
+      }
+    }
+  });
+
+  const preGamesFmt: {
+    id: number,
+    player1: string,
+    player1Link: string,
+    player2: string,
+    player2Link: string,
+    gameId: number
+  }[] = [];
+
+  for (const pg of preGames) {
+    preGamesFmt.push({
+      id: pg.id,
+      player1: pg.game.player1.username,
+      player1Link: pg.player1Link,
+      player2: pg.game.player2.username,
+      player2Link: pg.player2Link,
+      gameId: pg.game.id
+    });
+  }
+
+  return preGamesFmt;
 }
 
 export async function getPreGameByLink(link: string) {
