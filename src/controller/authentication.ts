@@ -48,13 +48,13 @@ export async function login(req: Request, res: Response) {
       return res.status(StatusCodes.NOT_IMPLEMENTED).end();
     }
 
-    const jwt_tok = generateAccessTok(user.username, user.id);
+    const jwtTok = generateAccessTok(user.username, user.id);
 
     return res
       .status(StatusCodes.OK)
       .json({
         id: user.id,
-        jwt_tok,
+        jwtTok,
       })
       .end();
   } catch (error) {

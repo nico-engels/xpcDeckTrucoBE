@@ -9,7 +9,7 @@ export function authentication(salt: string, password: string) {
   return crypto.createHmac('sha256', [salt, password].join('/')).update(process.env.FIXSTR).digest('hex');
 }
 
-export function generateAccessTok(username: string, userId: number, gameId?: number) {
+export function generateAccessTok(username: string, userId: number, gameId?: number): string {
   return jwt.sign({ username, userId, gameId }, process.env.TOK_SECRET, {
     expiresIn: '3d',
   });

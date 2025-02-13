@@ -50,5 +50,5 @@ informado na pasta rec/sslcert/(selfsigned.key e selfsigned.crt).
 
 ## À Fazer
 
-- Testes automatizados.
+- Testes automatizados (Iniciado usando o Jest).
 - Documentação dos endpoints (Swagger).
