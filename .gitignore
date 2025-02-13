@@ -5,3 +5,4 @@ rec/sslcert
 node_modules
 package-lock.json
 test
+rec/bd/db.sqlite3

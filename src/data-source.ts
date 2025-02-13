@@ -6,7 +6,7 @@ import { users, preAuthGames } from './entity/users';
 
 export const appDataSource = new DataSource({
   type: 'sqlite',
-  database: 'test',
+  database: './rec/bd/db.sqlite3',
   synchronize: true,
   //logging: true,
   entities: [users, games, rounds, turns, preAuthGames],
