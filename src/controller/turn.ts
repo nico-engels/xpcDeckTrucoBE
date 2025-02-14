@@ -75,7 +75,7 @@ export async function checkTurn(req: Request, res: Response) {
 
 export async function playTurn(req: Request, res: Response) {
   try {
-    const { roundId, prevSeq, cardOrAction } = req.body;
+    const { roundId, prevSeq, cardOrAction } = req.body || {};
 
     if (!roundId || prevSeq === undefined || !cardOrAction) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Invalid request!' }).end();

@@ -49,7 +49,7 @@ export async function infoGame(req: Request, res: Response) {
 
 export async function newGame(req: Request, res: Response) {
   try {
-    const { opponentUsername } = req.body;
+    const { opponentUsername } = req.body || {};
     let opponentUser: users;
 
     if (opponentUsername) {

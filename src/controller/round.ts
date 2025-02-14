@@ -42,7 +42,7 @@ export async function newRound(game: games, newSeq: number, newStarterPlayer?: n
 
 export async function finishRound(req: Request, res: Response) {
   try {
-    const { roundId } = req.body;
+    const { roundId } = req.body || {};
 
     if (!roundId) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Round!' }).end();

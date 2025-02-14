@@ -20,7 +20,7 @@ import { saltRandom, authentication, generateAccessTok } from '../util';
 
 export async function login(req: Request, res: Response) {
   try {
-    const { username, email, password, rpAddress } = req.body;
+    const { username, email, password, rpAddress } = req.body || {};
 
     if ((username && email) || (username && rpAddress) || (email && rpAddress)) {
       return res.status(StatusCodes.CONFLICT).json({ message: 'Login only username, e-mail or xrp-address!' }).end();
@@ -65,7 +65,7 @@ export async function login(req: Request, res: Response) {
 
 export async function register(req: Request, res: Response) {
   try {
-    const { username, email, rpAddress, password } = req.body;
+    const { username, email, rpAddress, password } = req.body || {};
     let username_valid = username;
 
     if (!email && !rpAddress && username != 'xt-admin' && username != 'liza(cpu)' && username != 'roque(cpu)') {
@@ -113,13 +113,13 @@ export async function register(req: Request, res: Response) {
       passwd: authentication(salt, password),
     });
 
-    const jwt_tok = generateAccessTok(user.username, user.id);
+    const jwtTok = generateAccessTok(user.username, user.id);
 
     return res
       .status(StatusCodes.OK)
       .json({
         id: user.id,
-        jwt_tok,
+        jwtTok,
         message: 'ok',
       })
       .end();
@@ -136,7 +136,7 @@ export async function changePassword(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: `Username '$req.jwtToken.username' not exist!` }).end();
     }
 
-    const { old_password, new_password } = req.body;
+    const { old_password, new_password } = req.body || {};
 
     const expectedHash = authentication(user.salt, old_password);
     if (user.passwd !== expectedHash) {
@@ -173,7 +173,7 @@ export async function newPreAuthGame(req: Request, res: Response) {
       return res.status(StatusCodes.UNAUTHORIZED).end();
     }
 
-    const { player1username, player2username } = req.body;
+    const { player1username, player2username } = req.body || {};
 
     let player1: users;
     let player2: users;
@@ -216,7 +216,7 @@ export async function newPreAuthGame(req: Request, res: Response) {
 
 export async function generatePreGameToken(req: Request, res: Response) {
   try {
-    const { playerLink, deviceId } = req.body;
+    const { playerLink, deviceId } = req.body || {};
 
     if (!playerLink || !deviceId) {
       return res.status(StatusCodes.NOT_FOUND).end();
@@ -274,7 +274,7 @@ export async function resetPreGameToken(req: Request, res: Response) {
       return res.status(StatusCodes.UNAUTHORIZED).end();
     }
 
-    const { playerLink } = req.body;
+    const { playerLink } = req.body || {};
 
     if (!playerLink) {
       return res.status(StatusCodes.NOT_FOUND).end();

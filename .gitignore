@@ -1,5 +1,6 @@
 .env
 .vscode/
+coverage/
 dist/
 rec/sslcert
 node_modules

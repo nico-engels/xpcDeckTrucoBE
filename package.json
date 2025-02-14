@@ -7,7 +7,7 @@
     "prettier": "npx prettier . --write",
     "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts",
     "start": "nodemon",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "keywords": [],
   "author": "nengels",
