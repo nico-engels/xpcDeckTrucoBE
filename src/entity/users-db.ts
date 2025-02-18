@@ -39,17 +39,17 @@ export async function listPreAuthGame() {
       game: {
         player1: true,
         player2: true,
-      }
-    }
+      },
+    },
   });
 
   const preGamesFmt: {
-    id: number,
-    player1: string,
-    player1Link: string,
-    player2: string,
-    player2Link: string,
-    gameId: number
+    id: number;
+    player1: string;
+    player1Link: string;
+    player2: string;
+    player2Link: string;
+    gameId: number;
   }[] = [];
 
   for (const pg of preGames) {
@@ -59,7 +59,7 @@ export async function listPreAuthGame() {
       player1Link: pg.player1Link,
       player2: pg.game.player2.username,
       player2Link: pg.player2Link,
-      gameId: pg.game.id
+      gameId: pg.game.id,
     });
   }
 
