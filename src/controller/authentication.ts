@@ -74,7 +74,7 @@ export async function register(req: Request, res: Response) {
 
     if (!username) {
       if (email) {
-        username_valid = email.substr(0, 35);
+        username_valid = email.split('@')[0];
       } else {
         username_valid = rpAddress;
       }
@@ -100,7 +100,7 @@ export async function register(req: Request, res: Response) {
     }
 
     if (!password || password.length < 6) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Passord need to be at least 6 caracters!' }).end();
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Password need to be at least 6 caracters!' }).end();
     }
 
     const salt = saltRandom();
@@ -136,23 +136,23 @@ export async function changePassword(req: Request, res: Response) {
       return res.status(StatusCodes.CONFLICT).json({ message: `Username '$req.jwtToken.username' not exist!` }).end();
     }
 
-    const { old_password, new_password } = req.body || {};
+    const { oldPassword, newPassword } = req.body || {};
 
-    const expectedHash = authentication(user.salt, old_password);
+    const expectedHash = authentication(user.salt, oldPassword);
     if (user.passwd !== expectedHash) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'old password not match!' }).end();
     }
 
-    if (!new_password || new_password.length < 6) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Passord need to be at least 6 caracters!' }).end();
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(StatusCodes.CONFLICT).json({ message: 'Password need to be at least 6 caracters!' }).end();
     }
 
     const salt = saltRandom();
 
     user.salt = salt;
-    user.passwd = authentication(salt, new_password);
+    user.passwd = authentication(salt, newPassword);
 
-    updateUser(user);
+    await updateUser(user);
 
     return res
       .status(StatusCodes.OK)
