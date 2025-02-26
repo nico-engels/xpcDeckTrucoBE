@@ -197,7 +197,7 @@ export async function newPreAuthGame(req: Request, res: Response) {
       player2Score: 0,
     });
     await newRound(game, 1);
-    const newPreGame = await createPreAuthGame({ game: game });
+    const newPreGame = await createPreAuthGame({ game });
 
     return res
       .status(StatusCodes.OK)

@@ -1,18 +1,25 @@
-import e, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { afterEach, describe, expect, jest, test } from '@jest/globals';
 
-import { changePassword, login, register } from '../../src/controller/authentication';
+import { changePassword, login, newPreAuthGame, register } from '../../src/controller/authentication';
 import { users } from '../../src/entity/users';
-import * as userDbModule from '../../src/entity/users-db';
+import * as gamesDbModule from '../../src/entity/games-db';
+import * as usersDbModule from '../../src/entity/users-db';
+import * as roundModule from '../../src/controller/round';
 import * as utilModule from '../../src/util';
 import { jwtRequest } from '../../src/router/middlewares';
 
-const mockCreateUser = jest.spyOn(userDbModule, 'createUser');
-const mockGetUserByUsername = jest.spyOn(userDbModule, 'getUserByUsername');
-const mockGetUserByEmail = jest.spyOn(userDbModule, 'getUserByEmail');
-const mockGetUserByRpAddress = jest.spyOn(userDbModule, 'getUserByRpAddress');
-const mockUpdateUser = jest.spyOn(userDbModule, 'updateUser');
+const mockCreateUser = jest.spyOn(usersDbModule, 'createUser');
+const mockGetUserByUsername = jest.spyOn(usersDbModule, 'getUserByUsername');
+const mockGetUserByEmail = jest.spyOn(usersDbModule, 'getUserByEmail');
+const mockGetUserByRpAddress = jest.spyOn(usersDbModule, 'getUserByRpAddress');
+const mockUpdateUser = jest.spyOn(usersDbModule, 'updateUser');
+const mockCreatePreAuthGame = jest.spyOn(usersDbModule, 'createPreAuthGame');
+
+const mockCreateGame = jest.spyOn(gamesDbModule, 'createGame');
+
+const mockNewRound = jest.spyOn(roundModule, 'newRound');
 
 const mockAuthentication = jest.spyOn(utilModule, 'authentication');
 const mockGenerateAccessTok = jest.spyOn(utilModule, 'generateAccessTok');
@@ -666,5 +673,151 @@ describe('change password', () => {
     expect(mockAuthentication).toHaveBeenCalledTimes(1);
     expect(mockAuthentication).toHaveBeenCalledWith(expectInfo.salt, expectInfo.oldPasswd);
     expect(resChangePasswd.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+  });
+});
+
+describe('Create pre-auth game', () => {
+  test('Should create pre-auth game successfully', async () => {
+    const expectInfo = {
+      player1: {
+        username: 'pyr1',
+        id: 22,
+      },
+      player2: {
+        username: 'ply2',
+        id: 25,
+      },
+      jwtUsername: 'xt-admin',
+    };
+    const expectNewGameDb = {
+      id: 24,
+      player1: expectInfo.player1,
+      player2: expectInfo.player2,
+    };
+    const expectNewPreGameDb = {
+      id: 11,
+      player1Link: 'jkjksjdm',
+      player2Link: 'jkDDfjdm',
+    };
+
+    const req = {
+      body: {
+        player1username: expectInfo.player1.username,
+        player2username: expectInfo.player2.username,
+      },
+      jwtToken: {
+        username: expectInfo.jwtUsername,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    mockGetUserByUsername.mockImplementation((username: string) => {
+      if (username === expectInfo.player1.username) return Promise.resolve(expectInfo.player1);
+      else return Promise.resolve(expectInfo.player2);
+    });
+    mockCreateGame.mockResolvedValue(expectNewGameDb);
+    mockNewRound.mockResolvedValue({});
+    mockCreatePreAuthGame.mockResolvedValue(expectNewPreGameDb);
+
+    const resNewAuthGame = await newPreAuthGame(req, res);
+
+    expect(mockGetUserByUsername).toHaveBeenCalledTimes(2);
+    expect(mockCreateGame).toHaveBeenCalledTimes(1);
+    expect(mockCreateGame).toHaveBeenCalledWith({
+      player1: expectInfo.player1,
+      player2: expectInfo.player2,
+      player1Score: 0,
+      player2Score: 0,
+    });
+    expect(mockNewRound).toHaveBeenCalledTimes(1);
+    expect(mockNewRound).toHaveBeenCalledWith(expectNewGameDb, 1);
+    expect(mockCreatePreAuthGame).toHaveBeenCalledTimes(1);
+    expect(mockCreatePreAuthGame).toHaveBeenCalledWith({ game: expectNewGameDb });
+    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(resNewAuthGame.json).toHaveBeenCalledWith({
+      message: 'ok',
+      id: expectNewPreGameDb.id,
+      player1Link: expectNewPreGameDb.player1Link,
+      player2Link: expectNewPreGameDb.player2Link,
+    });
+  });
+
+  test('Only xt-admin should create a new pre-auth game', async () => {
+    const expectInfo = {
+      jwtUsername: 'super-admin',
+    };
+
+    const req = {
+      jwtToken: {
+        username: expectInfo.jwtUsername,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const resNewAuthGame = await newPreAuthGame(req, res);
+
+    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+  });
+
+  test('Should not create without parameters', async () => {
+    const expectInfo = {
+      jwtUsername: 'xt-admin',
+    };
+
+    const req = {
+      jwtToken: {
+        username: expectInfo.jwtUsername,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const resNewAuthGame = await newPreAuthGame(req, res);
+
+    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+  });
+
+  test('Should not create a game against himself', async () => {
+    const expectInfo = {
+      player1: {
+        id: 15,
+        username: 'blast',
+      },
+      player2: {
+        id: 15,
+        username: 'blast',
+      },
+      jwtUsername: 'xt-admin',
+    };
+
+    const req = {
+      body: {
+        player1username: expectInfo.player1.username,
+        player2username: expectInfo.player2.username,
+      },
+      jwtToken: {
+        username: expectInfo.jwtUsername,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const resNewAuthGame = await newPreAuthGame(req, res);
+
+    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
   });
 });
