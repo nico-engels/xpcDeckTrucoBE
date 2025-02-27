@@ -56,7 +56,6 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response) {
-
   if ((req as jwtRequest).jwtToken?.username !== 'xpcUsrCreator') {
     return res.status(StatusCodes.UNAUTHORIZED).end();
   }
@@ -200,49 +199,36 @@ export async function generatePreGameToken(req: Request, res: Response) {
   const { playerLink, deviceId } = req.body || {};
 
   if (!playerLink || !deviceId) {
-    return res.status(StatusCodes.NOT_FOUND).end();
+    return res.status(StatusCodes.BAD_REQUEST).end();
   }
 
   const preGame = await getPreGameByLink(playerLink);
-
   if (!preGame) {
     return res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
   }
 
-  let player: string;
-  let playerId: number;
-  let jwtTok: string;
-  if (playerLink === preGame.player1Link) {
-    
-    if (preGame.player1DeviceId && preGame.player1DeviceId !== deviceId) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
-    }
-      
-    preGame.player1DeviceId = deviceId;
+  const player = playerLink === preGame.player1Link ? preGame.game.player1 : preGame.game.player2;
+  const deviceIdRegistred = playerLink === preGame.player1Link ? preGame.player1DeviceId : preGame.player2DeviceId;
 
-    player = preGame.game.player1.username;
-    playerId = preGame.game.player1.id;
-    jwtTok = generateAccessTok(preGame.game.player1.username, preGame.game.player1.id, preGame.game.id);
-  } else {
-    
-    if (preGame.player2DeviceId && preGame.player2DeviceId !== deviceId) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Link already consumed!' }).end();
-    }
-        
-    preGame.player2DeviceId = deviceId;
-
-    player = preGame.game.player2.username;
-    playerId = preGame.game.player2.id;
-    jwtTok = generateAccessTok(preGame.game.player2.username, preGame.game.player2.id, preGame.game.id);
+  if (deviceIdRegistred && deviceIdRegistred !== deviceId) {
+    return res.status(StatusCodes.UNAUTHORIZED).end();
   }
+
+  if (playerLink === preGame.player1Link) {
+    preGame.player1DeviceId = deviceId;
+  } else {
+    preGame.player2DeviceId = deviceId;
+  }
+
+  const jwtTok = generateAccessTok(player.username, player.id, preGame.game.id);
 
   await updatePreAuthGame(preGame);
 
   return res
     .status(StatusCodes.OK)
     .json({
-      playerId,
-      player,
+      playerId: player.id,
+      player: player.username,
       jwtTok: jwtTok,
       gameId: preGame.game.id,
     })
