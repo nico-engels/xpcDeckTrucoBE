@@ -434,7 +434,7 @@ describe('register', () => {
     expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
-  test('Should not create user without parameters 2', async () => {
+  test('Should not create user without parameters with creator', async () => {
     const req = {
       jwtToken: {
         username: 'xpcUsrCreator',
@@ -449,6 +449,23 @@ describe('register', () => {
     const resRegister = await register(req, res);
 
     expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+  });
+
+  test('Should not create user without parameters with wrong creator', async () => {
+    const req = {
+      jwtToken: {
+        username: 'xpcUsrCreatossr',
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const resRegister = await register(req, res);
+
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not duplicate user', async () => {
