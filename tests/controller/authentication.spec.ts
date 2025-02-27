@@ -245,6 +245,7 @@ describe('register', () => {
       passwd: '12345tty',
       jwt: 'jwtTok333',
       salt: 'salty212',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
@@ -252,7 +253,10 @@ describe('register', () => {
         email: expectInfo.email,
         password: expectInfo.passwd,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -303,13 +307,17 @@ describe('register', () => {
       passwd: '1asaa45tty',
       jwt: 'jwtsToks333',
       salt: 'sal33ty212',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         email: expectInfo.email,
         password: expectInfo.passwd,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -360,13 +368,17 @@ describe('register', () => {
       passwd: 'ahsg99986ggg',
       jwt: 'jwtsToks333wsaaa',
       salt: 'Sal33ty212',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         rpAddress: expectInfo.rpAddress,
         password: expectInfo.passwd,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -419,7 +431,24 @@ describe('register', () => {
 
     const resRegister = await register(req, res);
 
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+  });
+
+  test('Should not create user without parameters 2', async () => {
+    const req = {
+      jwtToken: {
+        username: 'xpcUsrCreator',
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const resRegister = await register(req, res);
+
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not duplicate user', async () => {
@@ -427,12 +456,16 @@ describe('register', () => {
       id: 510,
       username: 'oi',
       email: 'oi@1234.xyz',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         email: expectInfo.email,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -445,19 +478,23 @@ describe('register', () => {
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user with duplicated xrp address', async () => {
     const expectInfo = {
       id: 2,
       rpAddress: 'r233344dsdaccc',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         rpAddress: expectInfo.rpAddress,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },      
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -473,7 +510,7 @@ describe('register', () => {
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.rpAddress);
     expect(mockGetUserByRpAddress).toHaveBeenCalledTimes(1);
     expect(mockGetUserByRpAddress).toHaveBeenCalledWith(expectInfo.rpAddress);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user with duplicated e-mail', async () => {
@@ -481,12 +518,16 @@ describe('register', () => {
       id: 2,
       username: 'pele',
       email: 'pele@santos.com.br',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         email: expectInfo.email,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -502,7 +543,7 @@ describe('register', () => {
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
     expect(mockGetUserByEmail).toHaveBeenCalledTimes(1);
     expect(mockGetUserByEmail).toHaveBeenCalledWith(expectInfo.email);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user without password', async () => {
@@ -510,12 +551,16 @@ describe('register', () => {
       id: 2,
       username: 'pele',
       email: 'pele@santos.com.br',
+      usernameCreator: 'xpcUsrCreator',
     };
     const req = {
       body: {
         email: expectInfo.email,
       },
-    } as Request;
+      jwtToken: {
+        username: expectInfo.usernameCreator,
+      },
+    } as jwtRequest;
     const res = {
       end: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -531,7 +576,7 @@ describe('register', () => {
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
     expect(mockGetUserByEmail).toHaveBeenCalledTimes(1);
     expect(mockGetUserByEmail).toHaveBeenCalledWith(expectInfo.email);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 });
 
