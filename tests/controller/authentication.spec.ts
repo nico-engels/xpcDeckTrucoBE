@@ -135,7 +135,7 @@ describe('login', () => {
 
     const resLogin = await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not login with e-mail and username must be one or another', async () => {
@@ -157,7 +157,7 @@ describe('login', () => {
 
     const resLogin = await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not login with wrong password', async () => {

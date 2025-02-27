@@ -1,6 +1,8 @@
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { ErrorRequestHandler } from 'express';
+import 'express-async-errors';
+import { StatusCodes } from 'http-status-codes';
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
@@ -20,6 +22,14 @@ const credentials = { key: privateKey, cert: certificate };
 const server_https = https.createServer(credentials, app);
 const server_http = http.createServer(app);
 
+const errorHandler: ErrorRequestHandler = (err, req, res) => {
+  console.error(`Error handler xpdDeck-Truco: ${err.stack}`);
+  res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+};
+
+app.use('/', router());
+app.use(errorHandler);
+
 server_https.listen(7777, () => {
   console.log('xpdDeck-Truco running (7777 https)');
 });
@@ -27,5 +37,3 @@ server_https.listen(7777, () => {
 server_http.listen(7778, () => {
   console.log('xpdDeck-Truco running (7778 http)');
 });
-
-app.use('/', router());

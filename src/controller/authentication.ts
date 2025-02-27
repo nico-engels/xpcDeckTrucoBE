@@ -19,48 +19,40 @@ import { jwtRequest } from '../router/middlewares';
 import { saltRandom, authentication, generateAccessTok } from '../util';
 
 export async function login(req: Request, res: Response) {
-  try {
-    const { username, email, password, rpAddress } = req.body || {};
+  const { username, email, password, rpAddress } = req.body || {};
 
-    if ((username && email) || (username && rpAddress) || (email && rpAddress)) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Login only username, e-mail or xrp-address!' }).end();
-    } else if (!username && !email && !rpAddress) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Login with username, e-mail or xrp-address!' }).end();
-    }
-
-    let user;
-    if (username || email) {
-      if (username) {
-        user = await getUserByUsername(username);
-      } else {
-        user = await getUserByEmail(email);
-      }
-
-      if (!user) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
-      }
-
-      const expectedHash = authentication(user.salt, password);
-      if (user.passwd !== expectedHash) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
-      }
-    } else {
-      return res.status(StatusCodes.NOT_IMPLEMENTED).end();
-    }
-
-    const jwtTok = generateAccessTok(user.username, user.id);
-
-    return res
-      .status(StatusCodes.OK)
-      .json({
-        id: user.id,
-        jwtTok,
-      })
-      .end();
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+  if ((username && email) || (username && rpAddress) || (email && rpAddress)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login only username, e-mail or xrp-address!' }).end();
   }
+
+  if (!username && !email && !rpAddress) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login with username, e-mail or xrp-address!' }).end();
+  }
+
+  if (rpAddress) {
+    return res.status(StatusCodes.NOT_IMPLEMENTED).end();
+  }
+
+  const user = username ? await getUserByUsername(username) : await getUserByEmail(email);
+
+  if (!user) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+  }
+
+  const expectedHash = authentication(user.salt, password);
+  if (user.passwd !== expectedHash) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+  }
+
+  const jwtTok = generateAccessTok(user.username, user.id);
+
+  return res
+    .status(StatusCodes.OK)
+    .json({
+      id: user.id,
+      jwtTok,
+    })
+    .end();
 }
 
 export async function register(req: Request, res: Response) {
