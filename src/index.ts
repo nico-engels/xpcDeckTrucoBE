@@ -22,7 +22,7 @@ const credentials = { key: privateKey, cert: certificate };
 const server_https = https.createServer(credentials, app);
 const server_http = http.createServer(app);
 
-const errorHandler: ErrorRequestHandler = (err, req, res) => {
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.error(`Error handler xpdDeck-Truco: ${err.stack}`);
   res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
 };
