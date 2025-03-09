@@ -16,7 +16,8 @@ export async function validadeTok(req: Request, res: Response, next: NextFunctio
   try {
     const token = req.header('Authorization')?.replace(/^Bearer /, '');
     if (!token || token === 'undefined') {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
+      res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access denied' }).end();
+      return;
     }
 
     const decoded = jwt.verify(token, process.env.TOK_SECRET) as jwtUserIdPayload;
@@ -27,8 +28,10 @@ export async function validadeTok(req: Request, res: Response, next: NextFunctio
     };
   } catch (error) {
     console.log(error);
-    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid token' }).end();
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid token' }).end();
+    return;
   }
 
-  return next();
+  next();
+  return;
 }

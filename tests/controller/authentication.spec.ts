@@ -63,7 +63,7 @@ describe('login', () => {
     mockAuthentication.mockReturnValue(expectInfo.passwd);
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwt);
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
@@ -71,8 +71,8 @@ describe('login', () => {
     expect(mockAuthentication).toHaveBeenCalledWith(expectInfo.salt, expectInfo.passwd);
     expect(mockGenerateAccessTok).toHaveBeenCalledTimes(1);
     expect(mockGenerateAccessTok).toHaveBeenCalledWith(expectInfo.username, expectInfo.id);
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resLogin.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       jwtTok: expectInfo.jwt,
     });
@@ -111,7 +111,7 @@ describe('login', () => {
     mockAuthentication.mockReturnValue(expectInfo.passwd);
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwt);
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
     expect(mockGetUserByEmail).toHaveBeenCalledTimes(1);
     expect(mockGetUserByEmail).toHaveBeenCalledWith(expectInfo.email);
@@ -119,8 +119,8 @@ describe('login', () => {
     expect(mockAuthentication).toHaveBeenCalledWith(expectInfo.salt, expectInfo.passwd);
     expect(mockGenerateAccessTok).toHaveBeenCalledTimes(1);
     expect(mockGenerateAccessTok).toHaveBeenCalledWith(expectInfo.username, expectInfo.id);
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resLogin.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       jwtTok: expectInfo.jwt,
     });
@@ -134,9 +134,9 @@ describe('login', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not login with e-mail and username must be one or another', async () => {
@@ -156,9 +156,9 @@ describe('login', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not login with wrong password', async () => {
@@ -189,9 +189,9 @@ describe('login', () => {
     mockGetUserByEmail.mockResolvedValue(userDb);
     mockAuthentication.mockReturnValue(expectInfo.wrongPasswd);
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not login with innexistent user', async () => {
@@ -211,9 +211,9 @@ describe('login', () => {
 
     mockGetUserByUsername.mockResolvedValue(null);
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not login xrp-address (NOT_IMPLEMENTED)', async () => {
@@ -231,9 +231,9 @@ describe('login', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resLogin = await login(req, res);
+    await login(req, res);
 
-    expect(resLogin.status).toHaveBeenCalledWith(StatusCodes.NOT_IMPLEMENTED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_IMPLEMENTED);
   });
 });
 
@@ -274,7 +274,7 @@ describe('register', () => {
     });
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwt);
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
@@ -292,8 +292,8 @@ describe('register', () => {
     });
     expect(mockGenerateAccessTok).toHaveBeenCalledTimes(1);
     expect(mockGenerateAccessTok).toHaveBeenCalledWith(expectInfo.username, expectInfo.id);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resRegister.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       jwtTok: expectInfo.jwt,
       message: 'ok',
@@ -335,7 +335,7 @@ describe('register', () => {
     });
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwt);
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
@@ -353,8 +353,8 @@ describe('register', () => {
     });
     expect(mockGenerateAccessTok).toHaveBeenCalledTimes(1);
     expect(mockGenerateAccessTok).toHaveBeenCalledWith(expectInfo.username, expectInfo.id);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resRegister.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       jwtTok: expectInfo.jwt,
       message: 'ok',
@@ -396,7 +396,7 @@ describe('register', () => {
     });
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwt);
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
@@ -414,8 +414,8 @@ describe('register', () => {
     });
     expect(mockGenerateAccessTok).toHaveBeenCalledTimes(1);
     expect(mockGenerateAccessTok).toHaveBeenCalledWith(expectInfo.username, expectInfo.id);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resRegister.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       jwtTok: expectInfo.jwt,
       message: 'ok',
@@ -430,9 +430,9 @@ describe('register', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not create user without parameters with creator', async () => {
@@ -447,9 +447,9 @@ describe('register', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not create user without parameters with wrong creator', async () => {
@@ -464,9 +464,9 @@ describe('register', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not duplicate user', async () => {
@@ -492,11 +492,11 @@ describe('register', () => {
 
     mockGetUserByUsername.mockResolvedValue({ id: expectInfo.id });
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user with duplicated xrp address', async () => {
@@ -522,13 +522,13 @@ describe('register', () => {
     mockGetUserByUsername.mockResolvedValue(null);
     mockGetUserByRpAddress.mockResolvedValue({ id: expectInfo.id });
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.rpAddress);
     expect(mockGetUserByRpAddress).toHaveBeenCalledTimes(1);
     expect(mockGetUserByRpAddress).toHaveBeenCalledWith(expectInfo.rpAddress);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user with duplicated e-mail', async () => {
@@ -555,13 +555,13 @@ describe('register', () => {
     mockGetUserByUsername.mockResolvedValue(null);
     mockGetUserByEmail.mockResolvedValue({ id: expectInfo.id });
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
     expect(mockGetUserByEmail).toHaveBeenCalledTimes(1);
     expect(mockGetUserByEmail).toHaveBeenCalledWith(expectInfo.email);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   test('Should not create user without password', async () => {
@@ -588,13 +588,13 @@ describe('register', () => {
     mockGetUserByUsername.mockResolvedValue(null);
     mockGetUserByEmail.mockResolvedValue(null);
 
-    const resRegister = await register(req, res);
+    await register(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
     expect(mockGetUserByEmail).toHaveBeenCalledTimes(1);
     expect(mockGetUserByEmail).toHaveBeenCalledWith(expectInfo.email);
-    expect(resRegister.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 });
 
@@ -631,7 +631,7 @@ describe('change password', () => {
     mockSaltRandom.mockReturnValue(expectInfo.salt);
     mockUpdateUser.mockResolvedValue({ id: expectInfo.id });
 
-    const resChangePasswd = await changePassword(req, res);
+    await changePassword(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
@@ -642,8 +642,8 @@ describe('change password', () => {
       passwd: expectInfo.newPasswd,
       salt: expectInfo.salt,
     });
-    expect(resChangePasswd.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resChangePasswd.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       id: expectInfo.id,
       message: 'ok',
     });
@@ -668,11 +668,11 @@ describe('change password', () => {
 
     mockGetUserByUsername.mockResolvedValue(null);
 
-    const resChangePasswd = await changePassword(req, res);
+    await changePassword(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
-    expect(resChangePasswd.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
   });
 
   test('Should not change password if provided the parameters', async () => {
@@ -694,11 +694,11 @@ describe('change password', () => {
 
     mockGetUserByUsername.mockResolvedValue({ id: expectInfo.id });
 
-    const resChangePasswd = await changePassword(req, res);
+    await changePassword(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
-    expect(resChangePasswd.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not change password if new password is not valid', async () => {
@@ -729,13 +729,13 @@ describe('change password', () => {
     mockAuthentication.mockReturnValue(expectInfo.oldPasswd);
     mockSaltRandom.mockReturnValue(expectInfo.salt);
 
-    const resChangePasswd = await changePassword(req, res);
+    await changePassword(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(1);
     expect(mockGetUserByUsername).toHaveBeenCalledWith(expectInfo.username);
     expect(mockAuthentication).toHaveBeenCalledTimes(1);
     expect(mockAuthentication).toHaveBeenCalledWith(expectInfo.salt, expectInfo.oldPasswd);
-    expect(resChangePasswd.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
   });
 });
 
@@ -786,7 +786,7 @@ describe('Create pre-auth game', () => {
     mockNewRound.mockResolvedValue({});
     mockCreatePreAuthGame.mockResolvedValue(expectNewPreGameDb);
 
-    const resNewAuthGame = await newPreAuthGame(req, res);
+    await newPreAuthGame(req, res);
 
     expect(mockGetUserByUsername).toHaveBeenCalledTimes(2);
     expect(mockCreateGame).toHaveBeenCalledTimes(1);
@@ -800,8 +800,8 @@ describe('Create pre-auth game', () => {
     expect(mockNewRound).toHaveBeenCalledWith(expectNewGameDb, 1);
     expect(mockCreatePreAuthGame).toHaveBeenCalledTimes(1);
     expect(mockCreatePreAuthGame).toHaveBeenCalledWith({ game: expectNewGameDb });
-    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resNewAuthGame.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       message: 'ok',
       id: expectNewPreGameDb.id,
       player1Link: expectNewPreGameDb.player1Link,
@@ -825,9 +825,9 @@ describe('Create pre-auth game', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resNewAuthGame = await newPreAuthGame(req, res);
+    await newPreAuthGame(req, res);
 
-    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 
   test('Should not create without parameters', async () => {
@@ -846,9 +846,9 @@ describe('Create pre-auth game', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resNewAuthGame = await newPreAuthGame(req, res);
+    await newPreAuthGame(req, res);
 
-    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
   });
 
   test('Should not create a game against himself', async () => {
@@ -879,9 +879,9 @@ describe('Create pre-auth game', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resNewAuthGame = await newPreAuthGame(req, res);
+    await newPreAuthGame(req, res);
 
-    expect(resNewAuthGame.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.CONFLICT);
   });
 });
 
@@ -924,7 +924,7 @@ describe('Login with the pre-auth link', () => {
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwtTok);
     mockUpdatePreAuthGame.mockResolvedValue({});
 
-    const resPreTok = await generatePreGameToken(req, res);
+    await generatePreGameToken(req, res);
 
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
@@ -943,8 +943,8 @@ describe('Login with the pre-auth link', () => {
       player2Link: expectInfo.player2Link,
       player1DeviceId: expectInfo.deviceId,
     });
-    expect(resPreTok.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resPreTok.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       playerId: expectInfo.player.id,
       player: expectInfo.player.username,
       jwtTok: expectInfo.jwtTok,
@@ -990,7 +990,7 @@ describe('Login with the pre-auth link', () => {
     mockGenerateAccessTok.mockReturnValue(expectInfo.jwtTok);
     mockUpdatePreAuthGame.mockResolvedValue({});
 
-    const resPreTok = await generatePreGameToken(req, res);
+    await generatePreGameToken(req, res);
 
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player2Link);
@@ -1009,8 +1009,8 @@ describe('Login with the pre-auth link', () => {
       player2Link: expectInfo.player2Link,
       player2DeviceId: expectInfo.deviceId,
     });
-    expect(resPreTok.status).toHaveBeenCalledWith(StatusCodes.OK);
-    expect(resPreTok.json).toHaveBeenCalledWith({
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
       playerId: expectInfo.player.id,
       player: expectInfo.player.username,
       jwtTok: expectInfo.jwtTok,
@@ -1026,9 +1026,9 @@ describe('Login with the pre-auth link', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    const resPreTok = await generatePreGameToken(req, res);
+    await generatePreGameToken(req, res);
 
-    expect(resPreTok.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
   });
 
   test('Should not generate with invalid link', async () => {
@@ -1050,11 +1050,11 @@ describe('Login with the pre-auth link', () => {
 
     mockGetPreGameByLink.mockResolvedValue(null);
 
-    const resPreTok = await generatePreGameToken(req, res);
+    await generatePreGameToken(req, res);
 
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
-    expect(resPreTok.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
   });
 
   test('Should not generate with invalid deviceId', async () => {
@@ -1070,7 +1070,7 @@ describe('Login with the pre-auth link', () => {
       player2: {
         id: 31187,
         username: 'playk2',
-      }
+      },
     };
     const req = {
       body: {
@@ -1094,10 +1094,10 @@ describe('Login with the pre-auth link', () => {
       },
     });
 
-    const resPreTok = await generatePreGameToken(req, res);
+    await generatePreGameToken(req, res);
 
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player2Link);
-    expect(resPreTok.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
 });

@@ -22,31 +22,36 @@ export async function login(req: Request, res: Response) {
   const { username, email, password, rpAddress } = req.body || {};
 
   if ((username && email) || (username && rpAddress) || (email && rpAddress)) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login only username, e-mail or xrp-address!' }).end();
+    res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login only username, e-mail or xrp-address!' }).end();
+    return;
   }
 
   if (!username && !email && !rpAddress) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login with username, e-mail or xrp-address!' }).end();
+    res.status(StatusCodes.BAD_REQUEST).json({ message: 'Login with username, e-mail or xrp-address!' }).end();
+    return;
   }
 
   if (rpAddress) {
-    return res.status(StatusCodes.NOT_IMPLEMENTED).end();
+    res.status(StatusCodes.NOT_IMPLEMENTED).end();
+    return;
   }
 
   const user = username ? await getUserByUsername(username) : await getUserByEmail(email);
 
   if (!user) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+    return;
   }
 
   const expectedHash = authentication(user.salt, password);
   if (user.passwd !== expectedHash) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Username/E-mail or password not match!' }).end();
+    return;
   }
 
   const jwtTok = generateAccessTok(user.username, user.id);
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       id: user.id,
@@ -57,13 +62,15 @@ export async function login(req: Request, res: Response) {
 
 export async function register(req: Request, res: Response) {
   if ((req as jwtRequest).jwtToken?.username !== 'xpcUsrCreator') {
-    return res.status(StatusCodes.UNAUTHORIZED).end();
+    res.status(StatusCodes.UNAUTHORIZED).end();
+    return;
   }
 
   const { username, email, rpAddress, password } = req.body || {};
 
   if (!email && !rpAddress && username != 'liza(cpu)' && username != 'roque(cpu)') {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Need e-mail or xrp-address!' }).end();
+    res.status(StatusCodes.BAD_REQUEST).json({ message: 'Need e-mail or xrp-address!' }).end();
+    return;
   }
 
   let username_valid = username;
@@ -77,25 +84,29 @@ export async function register(req: Request, res: Response) {
 
   const existingUsername = await getUserByUsername(username_valid);
   if (existingUsername) {
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Username already registred!' }).end();
+    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Username already registred!' }).end();
+    return;
   }
 
   if (rpAddress) {
     const existingRpAddress = await getUserByRpAddress(rpAddress);
     if (existingRpAddress) {
-      return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Xrp-address already registred!' }).end();
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Xrp-address already registred!' }).end();
+      return;
     }
   }
 
   if (email) {
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'E-mail already registred!' }).end();
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'E-mail already registred!' }).end();
+      return;
     }
   }
 
   if (!password || password.length < 6) {
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Password need to be at least 6 caracters!' }).end();
+    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ message: 'Password need to be at least 6 caracters!' }).end();
+    return;
   }
 
   const salt = saltRandom();
@@ -110,7 +121,7 @@ export async function register(req: Request, res: Response) {
 
   const jwtTok = generateAccessTok(user.username, user.id);
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       id: user.id,
@@ -123,18 +134,21 @@ export async function register(req: Request, res: Response) {
 export async function changePassword(req: Request, res: Response) {
   const user = await getUserByUsername((req as jwtRequest).jwtToken.username);
   if (!user) {
-    return res.status(StatusCodes.CONFLICT).json({ message: `Username '$req.jwtToken.username' not exist!` }).end();
+    res.status(StatusCodes.CONFLICT).json({ message: `Username '$req.jwtToken.username' not exist!` }).end();
+    return;
   }
 
   const { oldPassword, newPassword } = req.body || {};
 
   const expectedHash = authentication(user.salt, oldPassword);
   if (user.passwd !== expectedHash) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'old password not match!' }).end();
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: 'old password not match!' }).end();
+    return;
   }
 
   if (!newPassword || newPassword.length < 6) {
-    return res.status(StatusCodes.CONFLICT).json({ message: 'Password need to be at least 6 caracters!' }).end();
+    res.status(StatusCodes.CONFLICT).json({ message: 'Password need to be at least 6 caracters!' }).end();
+    return;
   }
 
   const salt = saltRandom();
@@ -144,7 +158,7 @@ export async function changePassword(req: Request, res: Response) {
 
   await updateUser(user);
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       id: user.id,
@@ -155,7 +169,8 @@ export async function changePassword(req: Request, res: Response) {
 
 export async function newPreAuthGame(req: Request, res: Response) {
   if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
-    return res.status(StatusCodes.UNAUTHORIZED).end();
+    res.status(StatusCodes.UNAUTHORIZED).end();
+    return;
   }
 
   const { player1username, player2username } = req.body || {};
@@ -165,7 +180,8 @@ export async function newPreAuthGame(req: Request, res: Response) {
 
   if (player1username && player2username) {
     if (player1username === player2username) {
-      return res.status(StatusCodes.CONFLICT).json({ message: 'Username cannot reference itself!' }).end();
+      res.status(StatusCodes.CONFLICT).json({ message: 'Username cannot reference itself!' }).end();
+      return;
     } else {
       player1 = await getUserByUsername(player1username);
       player2 = await getUserByUsername(player2username);
@@ -173,7 +189,8 @@ export async function newPreAuthGame(req: Request, res: Response) {
   }
 
   if (!player1 || !player2) {
-    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Player not found!' }).end();
+    res.status(StatusCodes.NOT_FOUND).json({ message: 'Player not found!' }).end();
+    return;
   }
   const game = await createGame({
     player1: player1,
@@ -184,7 +201,7 @@ export async function newPreAuthGame(req: Request, res: Response) {
   await newRound(game, 1);
   const newPreGame = await createPreAuthGame({ game });
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       message: 'ok',
@@ -199,19 +216,22 @@ export async function generatePreGameToken(req: Request, res: Response) {
   const { playerLink, deviceId } = req.body || {};
 
   if (!playerLink || !deviceId) {
-    return res.status(StatusCodes.BAD_REQUEST).end();
+    res.status(StatusCodes.BAD_REQUEST).end();
+    return;
   }
 
   const preGame = await getPreGameByLink(playerLink);
   if (!preGame) {
-    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    return;
   }
 
   const player = playerLink === preGame.player1Link ? preGame.game.player1 : preGame.game.player2;
   const deviceIdRegistred = playerLink === preGame.player1Link ? preGame.player1DeviceId : preGame.player2DeviceId;
 
   if (deviceIdRegistred && deviceIdRegistred !== deviceId) {
-    return res.status(StatusCodes.UNAUTHORIZED).end();
+    res.status(StatusCodes.UNAUTHORIZED).end();
+    return;
   }
 
   if (playerLink === preGame.player1Link) {
@@ -224,7 +244,7 @@ export async function generatePreGameToken(req: Request, res: Response) {
 
   await updatePreAuthGame(preGame);
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       playerId: player.id,
@@ -237,19 +257,22 @@ export async function generatePreGameToken(req: Request, res: Response) {
 
 export async function resetPreGameToken(req: Request, res: Response) {
   if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
-    return res.status(StatusCodes.UNAUTHORIZED).end();
+    res.status(StatusCodes.UNAUTHORIZED).end();
+    return;
   }
 
   const { playerLink } = req.body || {};
 
   if (!playerLink) {
-    return res.status(StatusCodes.NOT_FOUND).end();
+    res.status(StatusCodes.NOT_FOUND).end();
+    return;
   }
 
   const preGame = await getPreGameByLink(playerLink);
 
   if (!preGame) {
-    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    res.status(StatusCodes.NOT_FOUND).json({ message: 'Link not found!' }).end();
+    return;
   }
 
   let player: string;
@@ -263,7 +286,7 @@ export async function resetPreGameToken(req: Request, res: Response) {
 
   await updatePreAuthGame(preGame);
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       message: 'ok ' + player,
@@ -273,12 +296,13 @@ export async function resetPreGameToken(req: Request, res: Response) {
 
 export async function listPreAuthGames(req: Request, res: Response) {
   if ((req as jwtRequest).jwtToken.username !== 'xt-admin') {
-    return res.status(StatusCodes.UNAUTHORIZED).end();
+    res.status(StatusCodes.UNAUTHORIZED).end();
+    return;
   }
 
   const preAuthGames = await listPreAuthGame();
 
-  return res
+  res
     .status(StatusCodes.OK)
     .json({
       preAuthGamesCount: preAuthGames.length,
