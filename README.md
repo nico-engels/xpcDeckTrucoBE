@@ -40,15 +40,18 @@ do front consumindo a API.
 
 Deve ser definido no arquivo `.env`:
 
-- TOK_SECRET: Secret (string) utilizado ao assinar o token JWT. Informar uma
-  string aleatória.
 - FIXSTR: Consumido pelo HMAC Update ao gravar a senha dos usuários na base.
   Informar uma string aleatória.
+- TOK_SECRET: Secret (string) utilizado ao assinar o token JWT. Informar uma
+  string aleatória.
+- PREAUTH_VALIDATE_DEVICE: Usar true para deixar apenas a sessão que abriu o 
+  link pré-autorizado acessar o jogo. Ou false para não realizar essa validação,
+  usando apenas o link como chave.
 
 O servidor escuta nas portas 7777 (https) e 7778 (http). O certificado deve ser
 informado na pasta rec/sslcert/(selfsigned.key e selfsigned.crt).
 
 ## À Fazer
 
-- Testes automatizados (Iniciado usando o Jest).
 - Documentação dos endpoints (Swagger).
+- Monitoria (Logs).
