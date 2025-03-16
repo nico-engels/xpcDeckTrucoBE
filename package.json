@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "npx eslint .",
     "prettier": "npx prettier . --write",
-    "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts",
+    "schema-sync": "npx tsx ./node_modules/typeorm/cli.js schema:sync -d src/data-source.ts && npx tsx ./src/util/createSpecialUsers.ts",
     "start": "nodemon",
     "test": "jest --coverage"
   },

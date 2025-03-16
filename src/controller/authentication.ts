@@ -68,7 +68,7 @@ export async function register(req: Request, res: Response) {
 
   const { username, email, rpAddress, password } = req.body || {};
 
-  if (!email && !rpAddress && username != 'liza(cpu)' && username != 'roque(cpu)') {
+  if (!email && !rpAddress) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: 'Need e-mail or xrp-address!' }).end();
     return;
   }
