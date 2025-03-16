@@ -6,12 +6,16 @@ import { StatusCodes } from 'http-status-codes';
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
+import swaggerUI from 'swagger-ui-express';
 
 import router from './router';
+import swgCfg from '../swagger.json';
 
 dotenv.config();
 
 const app = express();
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swgCfg));
 
 app.use(bodyParser.json());
 

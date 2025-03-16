@@ -44,7 +44,7 @@ Deve ser definido no arquivo `.env`:
   Informar uma string aleatória.
 - TOK_SECRET: Secret (string) utilizado ao assinar o token JWT. Informar uma
   string aleatória.
-- PREAUTH_VALIDATE_DEVICE: Usar true para deixar apenas a sessão que abriu o 
+- PREAUTH_VALIDATE_DEVICE: Usar true para deixar apenas a sessão que abriu o
   link pré-autorizado acessar o jogo. Ou false para não realizar essa validação,
   usando apenas o link como chave.
 
@@ -53,5 +53,4 @@ informado na pasta rec/sslcert/(selfsigned.key e selfsigned.crt).
 
 ## À Fazer
 
-- Documentação dos endpoints (Swagger).
 - Monitoria (Logs).

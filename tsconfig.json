@@ -9,7 +9,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2021"]
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2021"],
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"]
 }
