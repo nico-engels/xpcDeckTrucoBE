@@ -82,7 +82,7 @@ export async function createSpecialUsers() {
   const usrs = [
     {
       username: 'xt-admin',
-      plain_passwd: process.env.XT_ADMIN_PASSWD,
+      plain_passwd: process.env.SP_USER_XT_ADMIN,
       salt: saltRandom(),
     },
     {
