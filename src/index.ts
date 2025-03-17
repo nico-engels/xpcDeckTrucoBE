@@ -10,14 +10,15 @@ import swaggerUI from 'swagger-ui-express';
 
 import router from './router';
 import swgCfg from '../swagger.json';
+import logger from './util/logger';
 
 dotenv.config();
 
 const app = express();
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swgCfg));
-
 app.use(bodyParser.json());
+app.use(logger);
 
 const privateKey = fs.readFileSync('rec/sslcert/selfsigned.key', 'utf8');
 const certificate = fs.readFileSync('rec/sslcert/selfsigned.crt', 'utf8');

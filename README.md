@@ -65,5 +65,4 @@ Para criar a base de dados é necessário executar `npm run schema-sync`.
 
 ## À Fazer
 
-- Monitoria (Logs).
 - Desenvolver funcionalidade dos oponentes CPU.
