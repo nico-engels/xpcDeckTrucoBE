@@ -107,7 +107,7 @@ export async function createSpecialUsers() {
     await appDataSource.initialize();
   }
   for (const usr of usrs) {
-    let msg = `Creating user ${usr.username} = ${usr.plain_passwd} `;
+    let msg = `Creating user ${usr.username} `;
 
     try {
       await createUser({
