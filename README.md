@@ -58,10 +58,13 @@ Deve ser definido no arquivo `.env`:
 - SP_USER_CPU_LIZA (opcional): Senha CPU 1.
 - SP_USER_CPU_ROQUE (opcional): Senha CPU 2.
 
-O servidor escuta nas portas 7777 (https) e 7778 (http). O certificado deve ser
-informado na pasta rec/sslcert/(selfsigned.key e selfsigned.crt).
+O servidor escuta por padrão nas portas 7777 (https) e 7778 (http). O 
+certificado deve ser informado na pasta rec/sslcert/(selfsigned.key e 
+selfsigned.crt).
 
 Para criar a base de dados é necessário executar `npm run schema-sync`.
+
+Criar a pasta ./rec/log para o registro das requisições recebidas.
 
 ## À Fazer
 

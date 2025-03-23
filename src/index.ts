@@ -35,10 +35,13 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 app.use('/', router());
 app.use(errorHandler);
 
-server_https.listen(7777, () => {
-  console.log('xpdDeck-Truco running (7777 https)');
+const http_port = process.env.HTTP_PORT || 7777;
+const https_port = process.env.HTTPS_PORT || 7778;
+
+server_https.listen(https_port, () => {
+  console.log(`xpcDeck-Truco running (${https_port} https)`);
 });
 
-server_http.listen(7778, () => {
-  console.log('xpdDeck-Truco running (7778 http)');
+server_http.listen(http_port, () => {
+  console.log(`xpcDeck-Truco running (${http_port} http)`);
 });

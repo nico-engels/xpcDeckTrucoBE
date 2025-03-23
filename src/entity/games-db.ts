@@ -319,12 +319,12 @@ export async function getAllInfoTurnsByRound(roundId: number): Promise<InfoRound
           player1LastAction = '';
           player2LastAction = '';
         } else {
-          if (actionsElevate.includes(player1LastAction) && player2LastAction === 'Ys') {
-            nextPlayerId = round.game.player1.id;
+          if (actionsElevate.includes(player1LastAction) && player2LastAction === 'Ys') {            
+            nextPlayerId = player1CardsRemaining.length === player2CardsRemaining.length ? round.game.player1.id : round.game.player2.id;
             player1LastAction = '';
             player2LastAction = '';
           } else if (actionsElevate.includes(player2LastAction) && player1LastAction === 'Ys') {
-            nextPlayerId = round.game.player2.id;
+            nextPlayerId = player1CardsRemaining.length === player2CardsRemaining.length ? round.game.player2.id : round.game.player1.id;
             player1LastAction = '';
             player2LastAction = '';
           } else {

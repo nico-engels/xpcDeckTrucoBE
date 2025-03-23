@@ -229,7 +229,7 @@ export async function generatePreGameToken(req: Request, res: Response) {
   const player = playerLink === preGame.player1Link ? preGame.game.player1 : preGame.game.player2;
   const deviceIdRegistred = playerLink === preGame.player1Link ? preGame.player1DeviceId : preGame.player2DeviceId;
 
-  if (process.env.PREAUTH_VALIDATE_DEVICE === 'true' && deviceIdRegistred && deviceIdRegistred !== deviceId) {
+  if ((process.env.PREAUTH_VALIDATE_DEVICE ?? 'true') == 'true' && deviceIdRegistred && deviceIdRegistred !== deviceId) {
     res.status(StatusCodes.UNAUTHORIZED).end();
     return;
   }
