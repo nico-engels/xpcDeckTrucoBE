@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { afterEach, describe, expect, jest, test } from '@jest/globals';
 
-import { changePassword, generatePreGameToken, login, newPreAuthGame, register } from '../../src/controller/authentication';
-import { users } from '../../src/entity/users';
+import { changePassword, generatePreGameToken, listPreAuthGames, login, newPreAuthGame, register, resetPreGameToken } from '../../src/controller/authentication';
+import { preAuthGames, users } from '../../src/entity/users';
 import * as gamesDbModule from '../../src/entity/games-db';
 import * as usersDbModule from '../../src/entity/users-db';
 import * as roundModule from '../../src/controller/round';
@@ -16,6 +16,7 @@ const mockGetPreGameByLink = jest.spyOn(usersDbModule, 'getPreGameByLink');
 const mockGetUserByUsername = jest.spyOn(usersDbModule, 'getUserByUsername');
 const mockGetUserByEmail = jest.spyOn(usersDbModule, 'getUserByEmail');
 const mockGetUserByRpAddress = jest.spyOn(usersDbModule, 'getUserByRpAddress');
+const mockListPreAuthGame = jest.spyOn(usersDbModule, 'listPreAuthGame');
 const mockUpdatePreAuthGame = jest.spyOn(usersDbModule, 'updatePreAuthGame');
 const mockUpdateUser = jest.spyOn(usersDbModule, 'updateUser');
 const mockCreateGame = jest.spyOn(gamesDbModule, 'createGame');
@@ -1100,4 +1101,238 @@ describe('Login with the pre-auth link', () => {
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player2Link);
     expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
   });
+});
+
+describe('Reset pre-auth game device', () => {
+  test('Should reset the device id', async () => {
+
+    const expectInfo = {
+      player1Link: 'aaavvvccc',
+      deviceId: 'device-12ss3',   
+      username: 'xt-admin',   
+    };
+    const req = {
+      body: {
+        playerLink: expectInfo.player1Link
+      },
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    mockGetPreGameByLink.mockResolvedValue({
+      player1Link: expectInfo.player1Link,
+      player1DeviceId: expectInfo.deviceId,
+    });    
+    mockUpdatePreAuthGame.mockResolvedValue({});
+
+    await resetPreGameToken(req, res);
+
+    expect(mockGetPreGameByLink).toBeCalledTimes(1);
+    expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
+    expect(mockUpdatePreAuthGame).toBeCalledTimes(1);
+    expect(mockUpdatePreAuthGame).toBeCalledWith({      
+      player1Link: expectInfo.player1Link,
+      player1DeviceId: null,
+    });
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'ok p1',
+    });
+  });
+
+  test('Should reset the device id', async () => {
+
+    const expectInfo = {
+      player2Link: 'aaavvvccc',
+      deviceId: 'device-12ss3',   
+      username: 'xt-admin',   
+    };
+    const req = {
+      body: {
+        playerLink: expectInfo.player2Link
+      },
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    mockGetPreGameByLink.mockResolvedValue({
+      player2Link: expectInfo.player2Link,
+      player2DeviceId: expectInfo.deviceId,
+    });    
+    mockUpdatePreAuthGame.mockResolvedValue({});
+
+    await resetPreGameToken(req, res);
+
+    expect(mockGetPreGameByLink).toBeCalledTimes(1);
+    expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player2Link);
+    expect(mockUpdatePreAuthGame).toBeCalledTimes(1);
+    expect(mockUpdatePreAuthGame).toBeCalledWith({      
+      player2Link: expectInfo.player2Link,
+      player2DeviceId: null,
+    });
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'ok p2',
+    });
+  });
+
+  test('Should not reset if user is not the admin', async () => {
+
+    const expectInfo = {
+      username: 'admin',     
+    };
+    const req = {
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    await resetPreGameToken(req, res);
+    
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);    
+  });  
+
+  test('Should not reset without parameters', async () => {
+
+    const expectInfo = {
+      username: 'xt-admin',   
+    };
+    const req = {
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    await resetPreGameToken(req, res);
+    
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+  });
+
+  test('Should not reset with inexistent link', async () => {
+
+    const expectInfo = {
+      player1Link: 'aaavvvccc',  
+      username: 'xt-admin',   
+    };
+    const req = {
+      body: {
+        playerLink: expectInfo.player1Link
+      },
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    mockGetPreGameByLink.mockResolvedValue(null);
+
+    await resetPreGameToken(req, res);
+
+    expect(mockGetPreGameByLink).toBeCalledTimes(1);
+    expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Link not found!' 
+    });
+  });
+
+});
+
+describe('Listing pre-auth links', () => {
+
+  test('Should list all pre-auth games for admin', async () => {
+
+    const expectInfo = {
+      username: 'xt-admin',   
+      preAuthGames: [
+        {
+          id: 1,
+          player1: 'tatu',
+          player1Link: 'link1',
+          player2: 'bolinha',
+          player2Link: 'link2',
+          gameId: 1,
+        },
+        {
+          id: 2,
+          player1: 'jao',
+          player1Link: 'link3',
+          player2: 'tatu',
+          player2Link: 'link4',
+          gameId: 2,
+        }
+      ]
+    };
+    const req = {
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    mockListPreAuthGame.mockResolvedValue(expectInfo.preAuthGames);    
+    mockUpdatePreAuthGame.mockResolvedValue({});
+
+    await listPreAuthGames(req, res);
+
+    expect(mockListPreAuthGame).toBeCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+    expect(res.json).toHaveBeenCalledWith({
+      preAuthGamesCount: expectInfo.preAuthGames.length,
+      preAuthGames: expectInfo.preAuthGames
+    });
+
+  });
+
+  test('Should not list if user is not the admin', async () => {
+
+    const expectInfo = {
+      username: 'admin',     
+    };
+    const req = {
+      jwtToken: {
+        username: expectInfo.username,
+      },
+    } as jwtRequest;
+    const res = {
+      end: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    await listPreAuthGames(req, res);
+    
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);    
+  });  
+
 });

@@ -8,7 +8,7 @@ import { getUserByUsername } from '../entity/users-db';
 import { newRound } from './round';
 
 export async function infoGame(req: Request, res: Response) {
-  if (!req.params.gameId || Number.isNaN(parseInt(req.params.gameId))) {
+  if (!req.params?.gameId || Number.isNaN(parseInt(req.params?.gameId))) {
     res.status(StatusCodes.NOT_FOUND).json({ message: 'Need Game!' }).end();
     return;
   }
@@ -37,8 +37,8 @@ export async function infoGame(req: Request, res: Response) {
       player2Score: game.player2Score,
       startPlay: game.startPlay,
       lastPlay: game.lastPlay,
-      lastRoundId: game.rounds[game.rounds.length - 1]?.id,
-      lastRoundSeq: game.rounds[game.rounds.length - 1]?.seq,
+      lastRoundId: game.rounds.at(-1)?.id,
+      lastRoundSeq: game.rounds.at(-1)?.seq,
       endPlay: game.endPlay,
       winnerPlayerId: game.winnerPlayer?.id,
     })
