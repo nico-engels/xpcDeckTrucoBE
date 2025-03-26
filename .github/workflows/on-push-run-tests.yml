@@ -1,5 +1,5 @@
 name: Run tests in Linux on push
-run-name: Push by ${{ github.actor }} is testing 🚀
+run-name: Push by ${{ github.actor }}
 on: [push]
 jobs:
   run-tests:
