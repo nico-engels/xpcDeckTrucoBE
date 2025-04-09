@@ -7,12 +7,58 @@
   },
   "servers": [
     {
-      "url": "https://localhost:7777/",
+      "url": "https://localhost:7778/",
       "description": "HTTPS Local server."
     },
     {
-      "url": "http://localhost:7778/",
+      "url": "http://localhost:7777/",
       "description": "HTTP Local server."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Unauthorized access, the access and password not match.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BadRequestError": {
+        "description": "The request do not pass the validations.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
     }
   ],
   "paths": {
@@ -22,6 +68,8 @@
         "description": "Inform the username or e-mail (but not both), and password to login in the system.",
         "required": true,
         "tags": ["Authentication"],
+        "security": [
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -69,7 +117,7 @@
                     "id": {
                       "type": "string"
                     },
-                    "token": {
+                    "jwtTok": {
                       "type": "string"
                     }
                   }
@@ -78,12 +126,67 @@
             }
           },
           "400": {
-            "description": "The request do not pass the validations.",
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Sign up.",
+        "description": "Inform the username, e-mail, rpAddress and password to register a new user in the system. You need to be logged in with an admin account to register a new user.",
+        "required": true,
+        "tags": ["Authentication"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "rpAddress": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {
+                "test": {
+                  "summary": "Example of a attempt of signup with username.",
+                  "value": {
+                    "username": "puthereyourusername",
+                    "email": "puthereyour@userna.me",
+                    "password": "******"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A JSON with the ID, JWT token and a message of the new user.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "jwtTok": {
+                      "type": "string"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -93,19 +196,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized access, the access and password not match.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
