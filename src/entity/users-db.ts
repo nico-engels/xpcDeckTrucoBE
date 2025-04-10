@@ -1,4 +1,4 @@
-import { appDataSource } from '../data-source';
+import { appDataSource } from './data-source';
 import { users, preAuthGames } from './users';
 import { authentication, saltRandom } from '../util';
 

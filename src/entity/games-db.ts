@@ -1,6 +1,6 @@
 import { IsNull, Not } from 'typeorm';
 
-import { appDataSource } from '../data-source';
+import { appDataSource } from './data-source';
 import { games, rounds, turns } from './games';
 
 export async function createGame(game: games) {
