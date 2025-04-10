@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { afterEach, describe, expect, jest, test } from '@jest/globals';
 
@@ -14,12 +14,10 @@ afterEach(() => {
 });
 
 describe('Information of the Game', () => {
-
   test('Should return sucessfully', async () => {
-
     const expectInfo = {
-      gameId: 7771,      
-      username: 'anyone',   
+      gameId: 7771,
+      username: 'anyone',
       gameInfo: {
         player1Id: 13432,
         player1: 'guga',
@@ -31,23 +29,23 @@ describe('Information of the Game', () => {
         lastPlay: new Date(),
         rounds: [
           {
-          id: 67676,
-          seq: 8888,
+            id: 67676,
+            seq: 8888,
           },
           {
             id: 1,
             seq: 1,
-            },
+          },
           {
             id: 5564,
             seq: 1212,
-            }
+          },
         ] as rounds[],
-      }
+      },
     };
     const req = {
       params: {
-        gameId: expectInfo.gameId
+        gameId: expectInfo.gameId,
       },
       jwtToken: {
         username: expectInfo.username,
@@ -58,7 +56,7 @@ describe('Information of the Game', () => {
       json: jest.fn().mockReturnThis(),
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
-    
+
     MockGetGameById.mockResolvedValue({
       id: expectInfo.gameId,
       player1: {
@@ -74,7 +72,7 @@ describe('Information of the Game', () => {
       startPlay: expectInfo.gameInfo.startPlay,
       lastPlay: expectInfo.gameInfo.lastPlay,
       rounds: expectInfo.gameInfo.rounds,
-    } as games);  
+    } as games);
 
     await infoGame(req, res);
 
@@ -93,9 +91,6 @@ describe('Information of the Game', () => {
       lastPlay: expectInfo.gameInfo.lastPlay,
       lastRoundId: expectInfo.gameInfo.rounds.at(-1)?.id,
       lastRoundSeq: expectInfo.gameInfo.rounds.at(-1)?.seq,
-    });  
-
-
+    });
   });
-
 });

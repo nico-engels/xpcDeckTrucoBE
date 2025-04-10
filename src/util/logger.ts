@@ -4,7 +4,7 @@ import fs from 'node:fs';
 export default logger({
   redact: {
     paths: ['*.headers.authorization'],
-    censor: '[****Censored****]'
+    censor: '[****Censored****]',
   },
-  stream: fs.createWriteStream('./rec/log/app.log')
+  stream: fs.createWriteStream('./rec/log/app.log'),
 });

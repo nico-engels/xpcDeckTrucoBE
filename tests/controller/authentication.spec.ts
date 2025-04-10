@@ -2,8 +2,16 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { afterEach, describe, expect, jest, test } from '@jest/globals';
 
-import { changePassword, generatePreGameToken, listPreAuthGames, login, newPreAuthGame, register, resetPreGameToken } from '../../src/controller/authentication';
-import { preAuthGames, users } from '../../src/entity/users';
+import {
+  changePassword,
+  generatePreGameToken,
+  listPreAuthGames,
+  login,
+  newPreAuthGame,
+  register,
+  resetPreGameToken,
+} from '../../src/controller/authentication';
+import { users } from '../../src/entity/users';
 import * as gamesDbModule from '../../src/entity/games-db';
 import * as usersDbModule from '../../src/entity/users-db';
 import * as roundModule from '../../src/controller/round';
@@ -1105,15 +1113,14 @@ describe('Login with the pre-auth link', () => {
 
 describe('Reset pre-auth game device', () => {
   test('Should reset the device id', async () => {
-
     const expectInfo = {
       player1Link: 'aaavvvccc',
-      deviceId: 'device-12ss3',   
-      username: 'xt-admin',   
+      deviceId: 'device-12ss3',
+      username: 'xt-admin',
     };
     const req = {
       body: {
-        playerLink: expectInfo.player1Link
+        playerLink: expectInfo.player1Link,
       },
       jwtToken: {
         username: expectInfo.username,
@@ -1128,7 +1135,7 @@ describe('Reset pre-auth game device', () => {
     mockGetPreGameByLink.mockResolvedValue({
       player1Link: expectInfo.player1Link,
       player1DeviceId: expectInfo.deviceId,
-    });    
+    });
     mockUpdatePreAuthGame.mockResolvedValue({});
 
     await resetPreGameToken(req, res);
@@ -1136,7 +1143,7 @@ describe('Reset pre-auth game device', () => {
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
     expect(mockUpdatePreAuthGame).toBeCalledTimes(1);
-    expect(mockUpdatePreAuthGame).toBeCalledWith({      
+    expect(mockUpdatePreAuthGame).toBeCalledWith({
       player1Link: expectInfo.player1Link,
       player1DeviceId: null,
     });
@@ -1147,15 +1154,14 @@ describe('Reset pre-auth game device', () => {
   });
 
   test('Should reset the device id', async () => {
-
     const expectInfo = {
       player2Link: 'aaavvvccc',
-      deviceId: 'device-12ss3',   
-      username: 'xt-admin',   
+      deviceId: 'device-12ss3',
+      username: 'xt-admin',
     };
     const req = {
       body: {
-        playerLink: expectInfo.player2Link
+        playerLink: expectInfo.player2Link,
       },
       jwtToken: {
         username: expectInfo.username,
@@ -1170,7 +1176,7 @@ describe('Reset pre-auth game device', () => {
     mockGetPreGameByLink.mockResolvedValue({
       player2Link: expectInfo.player2Link,
       player2DeviceId: expectInfo.deviceId,
-    });    
+    });
     mockUpdatePreAuthGame.mockResolvedValue({});
 
     await resetPreGameToken(req, res);
@@ -1178,7 +1184,7 @@ describe('Reset pre-auth game device', () => {
     expect(mockGetPreGameByLink).toBeCalledTimes(1);
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player2Link);
     expect(mockUpdatePreAuthGame).toBeCalledTimes(1);
-    expect(mockUpdatePreAuthGame).toBeCalledWith({      
+    expect(mockUpdatePreAuthGame).toBeCalledWith({
       player2Link: expectInfo.player2Link,
       player2DeviceId: null,
     });
@@ -1189,9 +1195,8 @@ describe('Reset pre-auth game device', () => {
   });
 
   test('Should not reset if user is not the admin', async () => {
-
     const expectInfo = {
-      username: 'admin',     
+      username: 'admin',
     };
     const req = {
       jwtToken: {
@@ -1205,14 +1210,13 @@ describe('Reset pre-auth game device', () => {
     } as unknown as Response;
 
     await resetPreGameToken(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);    
-  });  
+
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+  });
 
   test('Should not reset without parameters', async () => {
-
     const expectInfo = {
-      username: 'xt-admin',   
+      username: 'xt-admin',
     };
     const req = {
       jwtToken: {
@@ -1226,19 +1230,18 @@ describe('Reset pre-auth game device', () => {
     } as unknown as Response;
 
     await resetPreGameToken(req, res);
-    
+
     expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
   });
 
   test('Should not reset with inexistent link', async () => {
-
     const expectInfo = {
-      player1Link: 'aaavvvccc',  
-      username: 'xt-admin',   
+      player1Link: 'aaavvvccc',
+      username: 'xt-admin',
     };
     const req = {
       body: {
-        playerLink: expectInfo.player1Link
+        playerLink: expectInfo.player1Link,
       },
       jwtToken: {
         username: expectInfo.username,
@@ -1258,18 +1261,15 @@ describe('Reset pre-auth game device', () => {
     expect(mockGetPreGameByLink).toBeCalledWith(expectInfo.player1Link);
     expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Link not found!' 
+      message: 'Link not found!',
     });
   });
-
 });
 
 describe('Listing pre-auth links', () => {
-
   test('Should list all pre-auth games for admin', async () => {
-
     const expectInfo = {
-      username: 'xt-admin',   
+      username: 'xt-admin',
       preAuthGames: [
         {
           id: 1,
@@ -1286,8 +1286,8 @@ describe('Listing pre-auth links', () => {
           player2: 'tatu',
           player2Link: 'link4',
           gameId: 2,
-        }
-      ]
+        },
+      ],
     };
     const req = {
       jwtToken: {
@@ -1300,7 +1300,7 @@ describe('Listing pre-auth links', () => {
       status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    mockListPreAuthGame.mockResolvedValue(expectInfo.preAuthGames);    
+    mockListPreAuthGame.mockResolvedValue(expectInfo.preAuthGames);
     mockUpdatePreAuthGame.mockResolvedValue({});
 
     await listPreAuthGames(req, res);
@@ -1309,15 +1309,13 @@ describe('Listing pre-auth links', () => {
     expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
     expect(res.json).toHaveBeenCalledWith({
       preAuthGamesCount: expectInfo.preAuthGames.length,
-      preAuthGames: expectInfo.preAuthGames
+      preAuthGames: expectInfo.preAuthGames,
     });
-
   });
 
   test('Should not list if user is not the admin', async () => {
-
     const expectInfo = {
-      username: 'admin',     
+      username: 'admin',
     };
     const req = {
       jwtToken: {
@@ -1331,8 +1329,7 @@ describe('Listing pre-auth links', () => {
     } as unknown as Response;
 
     await listPreAuthGames(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);    
-  });  
 
+    expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED);
+  });
 });

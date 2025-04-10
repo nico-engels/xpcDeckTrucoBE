@@ -2,18 +2,32 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { games, rounds } from '../entity/games';
-import {
-  getAllInfoTurnsByRound,
-  getAllRoundsByGame,
-  getLastRoundByGame,
-  turnWin,
-  updateGame,
-  updateRound,
-  generateTrucoDeckCards,
-  createRound,
-} from '../entity/games-db';
+import { getAllRoundsByGame, getLastRoundByGame, updateGame, updateRound, createRound } from '../entity/games-db';
 import { jwtRequest } from '../router/middlewares';
 import { chunkSubstr } from '../util';
+import { allInfoTurnsByRound, turnWin } from './turn';
+
+export function generateTrucoDeckCards(count: number) {
+  /*  Truco Paulista 40 cartas - Codificação
+          4  5  6  7  Q  J  K  A  2  3
+      ♦   0  1  2  3  4  5  6  7  8  9
+      ♠  10 11 12 13 14 15 16 17 18 19
+      ♥  20 21 22 23 24 25 26 27 28 29
+      ♣  30 31 32 33 34 35 36 37 38 39
+  */
+  const cardsNumbers = new Set<number>();
+  while (cardsNumbers.size < count) cardsNumbers.add(Math.floor(Math.random() * 40));
+
+  const ranks: string[] = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'];
+  const suits: string[] = ['♦', '♠', '♥', '♣'];
+
+  const cards: string[] = [];
+  cardsNumbers.forEach((value) => {
+    cards.push(ranks[value % 10] + suits[Math.floor(value / 10)]);
+  });
+
+  return cards;
+}
 
 export async function newRound(game: games, newSeq: number, newStarterPlayer?: number) {
   const cards: string[] = generateTrucoDeckCards(7);
@@ -48,7 +62,7 @@ export async function finishRound(req: Request, res: Response) {
     return;
   }
 
-  const roundTurns = await getAllInfoTurnsByRound(roundId);
+  const roundTurns = await allInfoTurnsByRound(roundId);
 
   if (!roundTurns) {
     res.status(StatusCodes.NOT_FOUND).end();

@@ -68,8 +68,7 @@
         "description": "Inform the username or e-mail (but not both), and password to login in the system.",
         "required": true,
         "tags": ["Authentication"],
-        "security": [
-        ],
+        "security": [],
         "requestBody": {
           "content": {
             "application/json": {
