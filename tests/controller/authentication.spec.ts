@@ -12,22 +12,22 @@ import {
   resetPreGameToken,
 } from '../../src/controller/authentication';
 import { users } from '../../src/entity/users';
-import * as gamesDbModule from '../../src/entity/games-db';
-import * as usersDbModule from '../../src/entity/users-db';
+import * as gamesServiceModule from '../../src/entity/games-service';
+import * as usersServiceModule from '../../src/entity/users-service';
 import * as roundModule from '../../src/controller/round';
 import * as utilModule from '../../src/util';
 import { jwtRequest } from '../../src/router/middlewares';
 
-const mockCreateUser = jest.spyOn(usersDbModule, 'createUser');
-const mockCreatePreAuthGame = jest.spyOn(usersDbModule, 'createPreAuthGame');
-const mockGetPreGameByLink = jest.spyOn(usersDbModule, 'getPreGameByLink');
-const mockGetUserByUsername = jest.spyOn(usersDbModule, 'getUserByUsername');
-const mockGetUserByEmail = jest.spyOn(usersDbModule, 'getUserByEmail');
-const mockGetUserByRpAddress = jest.spyOn(usersDbModule, 'getUserByRpAddress');
-const mockListPreAuthGame = jest.spyOn(usersDbModule, 'listPreAuthGame');
-const mockUpdatePreAuthGame = jest.spyOn(usersDbModule, 'updatePreAuthGame');
-const mockUpdateUser = jest.spyOn(usersDbModule, 'updateUser');
-const mockCreateGame = jest.spyOn(gamesDbModule, 'createGame');
+const mockCreateUser = jest.spyOn(usersServiceModule, 'createUser');
+const mockCreatePreAuthGame = jest.spyOn(usersServiceModule, 'createPreAuthGame');
+const mockGetPreGameByLink = jest.spyOn(usersServiceModule, 'getPreGameByLink');
+const mockGetUserByUsername = jest.spyOn(usersServiceModule, 'getUserByUsername');
+const mockGetUserByEmail = jest.spyOn(usersServiceModule, 'getUserByEmail');
+const mockGetUserByRpAddress = jest.spyOn(usersServiceModule, 'getUserByRpAddress');
+const mockListPreAuthGame = jest.spyOn(usersServiceModule, 'listPreAuthGame');
+const mockUpdatePreAuthGame = jest.spyOn(usersServiceModule, 'updatePreAuthGame');
+const mockUpdateUser = jest.spyOn(usersServiceModule, 'updateUser');
+const mockCreateGame = jest.spyOn(gamesServiceModule, 'createGame');
 
 const mockNewRound = jest.spyOn(roundModule, 'newRound');
 

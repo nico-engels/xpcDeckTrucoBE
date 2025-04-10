@@ -5,9 +5,9 @@ import { afterEach, describe, expect, jest, test } from '@jest/globals';
 import { infoGame } from '../../src/controller/game';
 import { jwtRequest } from '../../src/router/middlewares';
 import { games, rounds } from '../../src/entity/games';
-import * as gamesDbModule from '../../src/entity/games-db';
+import * as gamesServiceModule from '../../src/entity/games-service';
 
-const MockGetGameById = jest.spyOn(gamesDbModule, 'getGameById');
+const MockGetGameById = jest.spyOn(gamesServiceModule, 'getGameById');
 
 afterEach(() => {
   jest.clearAllMocks();

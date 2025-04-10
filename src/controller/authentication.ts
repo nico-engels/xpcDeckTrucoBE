@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createGame } from '../entity/games-db';
+import { createGame } from '../entity/games-service';
 import { users } from '../entity/users';
 import {
   createUser,
@@ -13,7 +13,7 @@ import {
   listPreAuthGame,
   updatePreAuthGame,
   updateUser,
-} from '../entity/users-db';
+} from '../entity/users-service';
 import { newRound } from './round';
 import { jwtRequest } from '../router/middlewares';
 import { saltRandom, authentication, generateAccessTok } from '../util';

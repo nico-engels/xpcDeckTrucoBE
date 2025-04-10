@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTurn, getTurnsByRound, updateRound } from '../entity/games-db';
+import { createTurn, getTurnsByRound, updateRound } from '../entity/games-service';
 import { jwtRequest } from '../router/middlewares';
 import { chunkSubstr } from '../util';
 import { rounds } from '../entity/games';

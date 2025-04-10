@@ -1,39 +1,39 @@
-import { appDataSource } from './data-source';
+import { appDataSource } from './data-source-db';
 import { users, preAuthGames } from './users';
 import { authentication, saltRandom } from '../util';
 
-export async function getUserByUsername(username: string) {
+export async function getUserByUsernameRepo(username: string) {
   return await appDataSource.getRepository(users).findOneBy({ username: username });
 }
 
-export async function getUserByRpAddress(rpAddress: string) {
+export async function getUserByRpAddressRepo(rpAddress: string) {
   return await appDataSource.getRepository(users).findOneBy({ rpAddress: rpAddress });
 }
 
-export async function getUserByEmail(email: string) {
+export async function getUserByEmailRepo(email: string) {
   return await appDataSource.getRepository(users).findOneBy({ email: email });
 }
 
-export async function createUser(user: users) {
+export async function createUserRepo(user: users) {
   return await appDataSource.getRepository(users).save(user);
 }
 
-export async function updateUser(user: users) {
+export async function updateUserRepo(user: users) {
   return await appDataSource.getRepository(users).save(user);
 }
 
-export async function createPreAuthGame(pag: preAuthGames) {
+export async function createPreAuthGameRepo(pag: preAuthGames) {
   pag.player1Link = saltRandom().substring(0, 15).replaceAll(/[/+]/g, '');
   pag.player2Link = saltRandom().substring(0, 15).replaceAll(/[/+]/g, '');
 
   return await appDataSource.getRepository(preAuthGames).save(pag);
 }
 
-export async function updatePreAuthGame(pag: preAuthGames) {
+export async function updatePreAuthGameRepo(pag: preAuthGames) {
   return await appDataSource.getRepository(preAuthGames).save(pag);
 }
 
-export async function listPreAuthGame() {
+export async function listPreAuthGameRepo() {
   const preGames = await appDataSource.getRepository(preAuthGames).find({
     relations: {
       game: {
@@ -66,7 +66,7 @@ export async function listPreAuthGame() {
   return preGamesFmt;
 }
 
-export async function getPreGameByLink(link: string) {
+export async function getPreGameByLinkRepo(link: string) {
   return await appDataSource.getRepository(preAuthGames).findOne({
     where: [{ player1Link: link }, { player2Link: link }],
     relations: {
@@ -78,7 +78,7 @@ export async function getPreGameByLink(link: string) {
   });
 }
 
-export async function createSpecialUsers() {
+export async function createSpecialUsersRepo() {
   const usrs = [
     {
       username: 'xt-admin',
@@ -110,7 +110,7 @@ export async function createSpecialUsers() {
     let msg = `Creating user ${usr.username} `;
 
     try {
-      await createUser({
+      await createUserRepo({
         username: usr.username,
         salt: usr.salt,
         passwd: authentication(usr.salt, usr.plain_passwd),

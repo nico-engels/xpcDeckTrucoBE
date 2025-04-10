@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createGame, getGameById, listGamesByUsername } from '../entity/games-db';
+import { createGame, getGameById, listGamesByUsername } from '../entity/games-service';
 import { jwtRequest } from '../router/middlewares';
 import { users } from '../entity/users';
-import { getUserByUsername } from '../entity/users-db';
+import { getUserByUsername } from '../entity/users-service';
 import { newRound } from './round';
 
 export async function infoGame(req: Request, res: Response) {

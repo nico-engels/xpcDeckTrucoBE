@@ -1,17 +1,17 @@
 import { IsNull, Not } from 'typeorm';
 
-import { appDataSource } from './data-source';
+import { appDataSource } from './data-source-db';
 import { games, rounds, turns } from './games';
 
-export async function createGame(game: games) {
+export async function createGameRepo(game: games) {
   return await appDataSource.getRepository(games).save(game);
 }
 
-export async function updateGame(game: games) {
+export async function updateGameRepo(game: games) {
   return await appDataSource.getRepository(games).save(game);
 }
 
-export async function getGameById(gameId: number) {
+export async function getGameByIdRepo(gameId: number) {
   return await appDataSource.getRepository(games).findOne({
     where: {
       id: gameId,
@@ -25,7 +25,7 @@ export async function getGameById(gameId: number) {
   });
 }
 
-export async function listGamesByUsername(username: string, active?: boolean) {
+export async function listGamesByUsernameRepo(username: string, active?: boolean) {
   if (active === undefined) {
     return await appDataSource.getRepository(games).find({
       where: [{ player1: { username } }, { player2: { username } }],
@@ -61,15 +61,15 @@ export async function listGamesByUsername(username: string, active?: boolean) {
   }
 }
 
-export async function createRound(round: rounds) {
+export async function createRoundRepo(round: rounds) {
   return await appDataSource.getRepository(rounds).save(round);
 }
 
-export async function updateRound(round: rounds) {
+export async function updateRoundRepo(round: rounds) {
   return await appDataSource.getRepository(rounds).save(round);
 }
 
-export async function getAllRoundsByGame(gameId: number) {
+export async function getAllRoundsByGameRepo(gameId: number) {
   return await appDataSource.getRepository(rounds).find({
     where: {
       game: { id: gameId },
@@ -85,7 +85,7 @@ export async function getAllRoundsByGame(gameId: number) {
   });
 }
 
-export async function getLastRoundByGame(gameId: number) {
+export async function getLastRoundByGameRepo(gameId: number) {
   return (
     await appDataSource.getRepository(rounds).find({
       where: {
@@ -107,11 +107,11 @@ export async function getLastRoundByGame(gameId: number) {
   )[0];
 }
 
-export async function createTurn(turn: turns) {
+export async function createTurnRepo(turn: turns) {
   return await appDataSource.getRepository(turns).save(turn);
 }
 
-export async function getTurnsByRound(roundId: number) {
+export async function getTurnsByRoundRepo(roundId: number) {
   return (
     await appDataSource.getRepository(rounds).find({
       where: {

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { games, rounds } from '../entity/games';
-import { getAllRoundsByGame, getLastRoundByGame, updateGame, updateRound, createRound } from '../entity/games-db';
+import { getAllRoundsByGame, getLastRoundByGame, updateGame, updateRound, createRound } from '../entity/games-service';
 import { jwtRequest } from '../router/middlewares';
 import { chunkSubstr } from '../util';
 import { allInfoTurnsByRound, turnWin } from './turn';
