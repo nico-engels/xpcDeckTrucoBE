@@ -1,6 +1,3 @@
-import { createSpecialUsers } from 'entity/users-db';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { createSpecialUsers } from 'entity/users-service';
 
 createSpecialUsers();

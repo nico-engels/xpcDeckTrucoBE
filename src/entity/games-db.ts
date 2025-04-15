@@ -111,7 +111,7 @@ export async function createTurnRepo(turn: turns) {
   return await appDataSource.getRepository(turns).save(turn);
 }
 
-export async function getTurnsByRoundRepo(roundId: number) {
+export async function getRoundByIdRepo(roundId: number) {
   return (
     await appDataSource.getRepository(rounds).find({
       where: {

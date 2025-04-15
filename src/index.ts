@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
 import express, { ErrorRequestHandler } from 'express';
 import 'express-async-errors';
 import { StatusCodes } from 'http-status-codes';
@@ -11,8 +10,6 @@ import swaggerUI from 'swagger-ui-express';
 import router from './router';
 import swgCfg from '../swagger.json';
 import logger from './util/logger';
-
-dotenv.config();
 
 const app = express();
 
@@ -28,7 +25,7 @@ const server_https = https.createServer(credentials, app);
 const server_http = http.createServer(app);
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.error(`Error handler xpdDeck-Truco: ${err.stack}`);
+  console.error(`Error handler xpcDeck-Truco: ${err.stack}`);
   res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
 };
 

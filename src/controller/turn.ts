@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTurn, getTurnsByRound, updateRound } from '../entity/games-service';
+import { createTurn, getRoundById, updateRound } from '../entity/games-service';
 import { jwtRequest } from '../router/middlewares';
 import { chunkSubstr } from '../util';
 import { rounds } from '../entity/games';
@@ -86,7 +86,7 @@ function getActionsElevations() {
 }
 
 export async function allInfoTurnsByRound(roundId: number): Promise<InfoRounds> {
-  const round = await getTurnsByRound(roundId);
+  const round = await getRoundById(roundId);
 
   if (round) {
     const player1CardsArr = chunkSubstr(round.player1Cards, 2);

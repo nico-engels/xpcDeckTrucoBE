@@ -1,5 +1,5 @@
 {
   "watch": ["src"],
   "ext": ".ts,.js",
-  "exec": "npx tsx ./src/index.ts"
+  "exec": "npx tsx --env-file=.env ./src/index.ts"
 }

@@ -1,6 +1,6 @@
 import { appDataSource } from './data-source-db';
 import { users, preAuthGames } from './users';
-import { authentication, saltRandom } from '../util';
+import { saltRandom } from '../util';
 
 export async function getUserByUsernameRepo(username: string) {
   return await appDataSource.getRepository(users).findOneBy({ username: username });
@@ -76,50 +76,4 @@ export async function getPreGameByLinkRepo(link: string) {
       },
     },
   });
-}
-
-export async function createSpecialUsersRepo() {
-  const usrs = [
-    {
-      username: 'xt-admin',
-      plain_passwd: process.env.SP_USER_XT_ADMIN,
-      salt: saltRandom(),
-    },
-    {
-      username: 'xpcUsrCreator',
-      plain_passwd: process.env.SP_USER_XPCUSRCREATOR,
-      salt: saltRandom(),
-    },
-    {
-      username: 'liza(cpu)',
-      plain_passwd: process.env.SP_USER_CPU_LIZA,
-      salt: saltRandom(),
-    },
-    {
-      username: 'roque(cpu)',
-      plain_passwd: process.env.SP_USER_CPU_ROQUE,
-      salt: saltRandom(),
-    },
-  ];
-
-  console.log('Creating special users...');
-  if (!appDataSource.isInitialized) {
-    await appDataSource.initialize();
-  }
-  for (const usr of usrs) {
-    let msg = `Creating user ${usr.username} `;
-
-    try {
-      await createUserRepo({
-        username: usr.username,
-        salt: usr.salt,
-        passwd: authentication(usr.salt, usr.plain_passwd),
-      });
-
-      msg += 'ok';
-    } catch (error) {
-      msg += `err ${error}`;
-    }
-    console.log(msg);
-  }
 }

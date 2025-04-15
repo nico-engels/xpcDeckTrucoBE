@@ -1,18 +1,18 @@
-import { DynamoDBClient, ListTablesCommand } from '@aws-sdk/client-dynamodb';
-import dotenv from 'dotenv';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
-dotenv.config();
-
-const client = new DynamoDBClient({
-  region: 'us-east-1',
+const dynclient = new DynamoDBClient({
+  region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
-const command = new ListTablesCommand({});
-
-(async () => {
-  console.log(await client.send(command));
-})();
+export const dyndoclient = DynamoDBDocumentClient.from(dynclient, {
+  marshallOptions: {
+    convertEmptyValues: true,
+    removeUndefinedValues: true,
+    //convertClassInstanceToMap: true,
+  },
+});

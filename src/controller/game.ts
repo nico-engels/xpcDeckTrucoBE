@@ -64,7 +64,10 @@ export async function newGame(req: Request, res: Response) {
   }
 
   const game = await createGame({
-    player1: { id: (req as jwtRequest).jwtToken.userId },
+    player1: {
+      id: (req as jwtRequest).jwtToken.userId,
+      username: (req as jwtRequest).jwtToken.username,
+    },
     player2: opponentUser,
     player1Score: 0,
     player2Score: 0,
