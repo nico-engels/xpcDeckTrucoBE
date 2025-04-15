@@ -170,7 +170,7 @@ export async function getAllRoundsByGameDyndb(gameId: number) {
 
   if (res.Item) {
     const docGame = res.Item;
-    return docGame.rounds.map((round) => ({
+    return docGame.rounds.map((round: any) => ({
       id: round.id,
       player1Cards: round.player1Cards,
       player2Cards: round.player2Cards,
