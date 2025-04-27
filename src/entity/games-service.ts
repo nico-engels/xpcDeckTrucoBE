@@ -11,7 +11,19 @@ import {
   updateGameRepo,
   updateRoundRepo,
 } from './games-db';
-import { createGameDyndb, createRoundDyndb, getAllRoundsByGameDyndb, getGameByIdDyndb, getGameIdRoundSeqByRoundIdDyndb, getLastRoundByGameDyndb, getRoundByGameIdRoundSeqDyndb, listGamesByUsernameDyndb } from './games-dyndb';
+import {
+  createGameDyndb,
+  createRoundDyndb,
+  createTurnDyndb,
+  getAllRoundsByGameDyndb,
+  getGameByIdDyndb,
+  getGameIdRoundSeqByRoundIdDyndb,
+  getLastRoundByGameDyndb,
+  getRoundByGameIdRoundSeqDyndb,
+  listGamesByUsernameDyndb,
+  updateGameDyndb,
+  updateRoundDyndb,
+} from './games-dyndb';
 
 export async function createGame(game: games) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
@@ -26,6 +38,8 @@ export async function createGame(game: games) {
 export async function updateGame(game: games) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
     return await updateGameRepo(game);
+  } else if (process.env.MAIN_PERSISTENCE === 'dynamodb-aws') {
+    return await updateGameDyndb(game);
   } else {
     throw new Error('updateGame is not implemented for this persistence');
   }
@@ -35,7 +49,7 @@ export async function getGameById(gameId: number) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
     return await getGameByIdRepo(gameId);
   } else if (process.env.MAIN_PERSISTENCE === 'dynamodb-aws') {
-    return await getGameByIdDyndb(gameId);  
+    return await getGameByIdDyndb(gameId);
   } else {
     throw new Error('getGameById is not implemented for this persistence');
   }
@@ -64,6 +78,8 @@ export async function createRound(round: rounds) {
 export async function updateRound(round: rounds) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
     return await updateRoundRepo(round);
+  } else if (process.env.MAIN_PERSISTENCE === 'dynamodb-aws') {
+    return await updateRoundDyndb(round);
   } else {
     throw new Error('updateRound is not implemented for this persistence');
   }
@@ -92,6 +108,8 @@ export async function getLastRoundByGame(gameId: number) {
 export async function createTurn(turn: turns) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
     return await createTurnRepo(turn);
+  } else if (process.env.MAIN_PERSISTENCE === 'dynamodb-aws') {
+    return await createTurnDyndb(turn);
   } else {
     throw new Error('createTurn is not implemented for this persistence');
   }
@@ -101,7 +119,7 @@ export async function getRoundById(roundId: number) {
   if (process.env.MAIN_PERSISTENCE === 'typeorm-sqlite') {
     return await getRoundByIdRepo(roundId);
   } else if (process.env.MAIN_PERSISTENCE === 'dynamodb-aws') {
-    const gameIdRoundSeq = await getGameIdRoundSeqByRoundIdDyndb(roundId);    
+    const gameIdRoundSeq = await getGameIdRoundSeqByRoundIdDyndb(roundId);
     if (gameIdRoundSeq) {
       return await getRoundByGameIdRoundSeqDyndb(gameIdRoundSeq.gameId, gameIdRoundSeq.roundSeq);
     }

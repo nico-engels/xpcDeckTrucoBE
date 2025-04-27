@@ -456,6 +456,7 @@ export async function playTurn(req: Request, res: Response) {
     .status(StatusCodes.OK)
     .json({
       id: turn.id,
+      message: 'Ok',
     })
     .end();
 }

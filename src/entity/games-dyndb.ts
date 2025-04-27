@@ -1,6 +1,6 @@
 import { GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
-import { games, rounds } from './games';
+import { games, rounds, turns } from './games';
 import { dyndoclient } from './data-source-dyndb';
 
 export async function createGameDyndb(game: games) {
@@ -21,7 +21,7 @@ export async function createGameDyndb(game: games) {
     player1Score: game.player1Score,
     player2Score: game.player2Score,
     startPlay: game.startPlay.toISOString(),
-    winnerPlayer: game.winnerPlayer,
+    winnerPlayer: game.winnerPlayer.id,
     endPlay: game.endPlay?.toISOString(),
     rounds: game.rounds,
   };
@@ -36,7 +36,24 @@ export async function createGameDyndb(game: games) {
   return game;
 }
 
-export async function getGameByIdDyndb(gameId: number) {
+export async function updateGameDyndb(game: games) {
+  const gameDoc = await getGameDocByIdDyndb(game.id);
+
+  gameDoc.player1Score = game.player1Score;
+  gameDoc.player2Score = game.player2Score;
+  gameDoc.startPlay = game.startPlay.toISOString();
+  gameDoc.winnerPlayer = game.winnerPlayer;
+  gameDoc.endPlay = game.endPlay?.toISOString();
+
+  const cmd = new PutCommand({
+    TableName: 'games',
+    Item: gameDoc,
+  });
+  await dyndoclient.send(cmd);
+  return game;
+}
+
+export async function getGameDocByIdDyndb(gameId: number) {
   const cmd = new GetCommand({
     TableName: 'games',
     Key: {
@@ -46,23 +63,33 @@ export async function getGameByIdDyndb(gameId: number) {
 
   const res = await dyndoclient.send(cmd);
 
-  if (res.Item) {
+  if (!res.Item) {
+    throw new Error('Game not found');
+  }
+
+  return res.Item;
+}
+
+export async function getGameByIdDyndb(gameId: number) {
+  const item = await getGameDocByIdDyndb(gameId);
+
+  if (item) {
     return {
-      id: res.Item.id,
+      id: item.id,
       player1: {
-        id: res.Item.player1,
-        username: res.Item.player1Username,
+        id: item.player1,
+        username: item.player1Username,
       },
       player2: {
-        id: res.Item.player2,
-        username: res.Item.player2Username,
+        id: item.player2,
+        username: item.player2Username,
       },
-      player1Score: res.Item.player1Score,
-      player2Score: res.Item.player2Score,
-      startPlay: res.Item.startPlay,
-      winnerPlayer: res.Item.winnerPlayer,
-      endPlay: res.Item.endPlay,
-      rounds: res.Item.rounds,
+      player1Score: item.player1Score,
+      player2Score: item.player2Score,
+      startPlay: new Date(item.startPlay),
+      winnerPlayer: item.winnerPlayer,
+      endPlay: item.endPlay ? new Date(item.endPlay) : undefined,
+      rounds: item.rounds,
     } as games;
   }
 }
@@ -102,9 +129,9 @@ export async function listGamesByUsernameDyndb(username: string, active?: boolea
       },
       player1Score: item.player1Score,
       player2Score: item.player2Score,
-      startPlay: item.startPlay,
+      startPlay: new Date(item.startPlay),
       winnerPlayer: item.winnerPlayer,
-      endPlay: item.endPlay,
+      endPlay: item.endPlay ? new Date(item.endPlay) : undefined,
       rounds: item.rounds,
     });
   }
@@ -113,35 +140,26 @@ export async function listGamesByUsernameDyndb(username: string, active?: boolea
 }
 
 export async function createRoundDyndb(round: rounds) {
-
   if (!round.id) {
     round.id = Math.floor(Math.random() * 1024);
   }
-  
-  const gameDoc = {
-    id: round.game.id,
-    player1: round.game.player1.id,
-    player1Username: round.game.player1.username,
-    player2: round.game.player2.id,
-    player2Username: round.game.player2.username,
-    player1Score: round.game.player1Score,
-    player2Score: round.game.player2Score,
-    startPlay: round.game.startPlay.toISOString(),
-    winnerPlayer: round.game.winnerPlayer?.id,
-    endPlay: round.game.endPlay?.toISOString(),
-    rounds: [
-      {
-        id: round.id,
-        player1Cards: round.player1Cards,
-        player2Cards: round.player2Cards,
-        trumpCard: round.trumpCard,
-        starterPlayer: round.starterPlayer.id,
-        score: round.score,
-        seq: round.seq,
-        finished: round.finished,
-      },
-    ],
-  };
+
+  const gameDoc = await getGameDocByIdDyndb(round.game.id);
+
+  gameDoc.rounds = [
+    ...gameDoc.rounds,
+    {
+      id: round.id,
+      player1Cards: round.player1Cards,
+      player2Cards: round.player2Cards,
+      trumpCard: round.trumpCard,
+      starterPlayer: round.starterPlayer.id,
+      score: round.score,
+      seq: round.seq,
+      finished: round.finished,
+      turns: [],
+    },
+  ];
 
   const cmd = new PutCommand({
     TableName: 'games',
@@ -154,6 +172,29 @@ export async function createRoundDyndb(round: rounds) {
     id: round.game.id,
     roundSeq: round.seq,
   });
+
+  return round;
+}
+
+export async function updateRoundDyndb(round: rounds) {
+  const gameDoc = await getGameDocByIdDyndb(round.game.id);
+  const docRound = gameDoc.rounds.find((r: any) => r.seq === round.seq);
+
+  if (docRound) {
+    docRound.player1Cards = round.player1Cards;
+    docRound.player2Cards = round.player2Cards;
+    docRound.trumpCard = round.trumpCard;
+    docRound.starterPlayer = round.starterPlayer.id;
+    docRound.score = round.score;
+    docRound.finished = round.finished;
+  }
+
+  const cmd = new PutCommand({
+    TableName: 'games',
+    Item: gameDoc,
+  });
+
+  await dyndoclient.send(cmd);
 
   return round;
 }
@@ -194,10 +235,10 @@ export async function getAllRoundsByGameDyndb(gameId: number) {
         },
         player1Score: docGame.player1Score,
         player2Score: docGame.player2Score,
-        startPlay: docGame.startPlay,
+        startPlay: new Date(docGame.startPlay),
         winnerPlayer: docGame.winnerPlayer,
-        endPlay: docGame.endPlay,
-      }
+        endPlay: docGame.endPlay ? new Date(docGame.endPlay) : undefined,
+      },
     }));
   }
 }
@@ -239,21 +280,30 @@ export async function getLastRoundByGameDyndb(gameId: number) {
         },
         player1Score: docGame.player1Score,
         player2Score: docGame.player2Score,
-        startPlay: docGame.startPlay,
+        startPlay: new Date(docGame.startPlay),
         winnerPlayer: docGame.winnerPlayer,
-        endPlay: docGame.endPlay,
-      }
+        endPlay: docGame.endPlay ? new Date(docGame.endPlay) : undefined,
+      },
     } as rounds;
   }
-  
 }
 
-export async function getRoundByGameIdRoundSeqDyndb(gameId: number, roundSeq: number)
-{
+export async function getRoundByGameIdRoundSeqDyndb(gameId: number, roundSeq: number) {
   const game = await getGameByIdDyndb(gameId);
   if (game) {
     const round = game.rounds.find((round) => round.seq === roundSeq);
     if (round) {
+      const turnsFmt =
+        round.turns?.map((turn: any) => ({
+          seq: turn.seq,
+          player: {
+            id: turn.player,
+            username: game.player1.id === turn.player ? game.player1.username : game.player2.username,
+          },
+          cardOrAction: turn.cardOrAction,
+          when: new Date(turn.when),
+        })) || [];
+
       return {
         id: round.id,
         player1Cards: round.player1Cards,
@@ -278,12 +328,49 @@ export async function getRoundByGameIdRoundSeqDyndb(gameId: number, roundSeq: nu
           },
           player1Score: game.player1Score,
           player2Score: game.player2Score,
-          startPlay: game.startPlay,
+          startPlay: new Date(game.startPlay),
           winnerPlayer: game.winnerPlayer,
-          endPlay: game.endPlay,
+          endPlay: game.endPlay ? new Date(game.endPlay) : undefined,
         },
-        turns: round.turns || []
+        turns: turnsFmt,
       } as rounds;
+    }
+  }
+}
+
+export async function createTurnDyndb(turn: turns) {
+  const gameIdRoundSeq = await getGameIdRoundSeqByRoundIdDyndb(turn.round.id);
+  if (gameIdRoundSeq) {
+    const cmdGame = new GetCommand({
+      TableName: 'games',
+      Key: {
+        id: gameIdRoundSeq.gameId,
+      },
+    });
+
+    const res = await dyndoclient.send(cmdGame);
+
+    if (res.Item) {
+      const docGame = res.Item;
+      const docRound = docGame.rounds.find((round: any) => round.seq === gameIdRoundSeq.roundSeq);
+      if (docRound) {
+        docRound.turns = docRound.turns || [];
+        docRound.turns.push({
+          seq: turn.seq,
+          player: turn.player.id,
+          cardOrAction: turn.cardOrAction,
+          when: turn.when.toISOString(),
+        });
+
+        const cmd = new PutCommand({
+          TableName: 'games',
+          Item: docGame,
+        });
+
+        await dyndoclient.send(cmd);
+
+        return turn;
+      }
     }
   }
 }
@@ -300,8 +387,7 @@ export async function createKeyMapIdDyndb(keyId: string, value: any) {
   await dyndoclient.send(cmd);
 }
 
-export async function getGameIdRoundSeqByRoundIdDyndb(roundId: number)
-{
+export async function getGameIdRoundSeqByRoundIdDyndb(roundId: number) {
   const cmd = new GetCommand({
     TableName: 'util-key-maps',
     Key: {
@@ -312,9 +398,9 @@ export async function getGameIdRoundSeqByRoundIdDyndb(roundId: number)
   const res = await dyndoclient.send(cmd);
 
   if (res.Item) {
-    return { 
+    return {
       gameId: res.Item.value.id as number,
       roundSeq: res.Item.value.roundSeq as number,
-    }
+    };
   }
 }
